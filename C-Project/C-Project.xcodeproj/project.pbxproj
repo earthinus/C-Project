@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		847801DF1E441D2900A21BB9 /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 847801DE1E441D2900A21BB9 /* main.c */; };
+		D39AC5361E442BEC0010384A /* main.c in Sources */ = {isa = PBXBuildFile; fileRef = 847801DE1E441D2900A21BB9 /* main.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -119,7 +119,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				847801DF1E441D2900A21BB9 /* main.c in Sources */,
+				D39AC5361E442BEC0010384A /* main.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -216,6 +216,7 @@
 		847801E31E441D2900A21BB9 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -223,6 +224,7 @@
 		847801E41E441D2900A21BB9 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -246,6 +248,7 @@
 				847801E41E441D2900A21BB9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
