@@ -12,7 +12,8 @@ void listAvarableCourses();
 void listStudents();
 void logOut();
 
-char userInputName,userInputPassword;
+char* userInputName;
+char* userInputPassword;
 int i;
 
 typedef struct student{
@@ -54,8 +55,8 @@ void login(){
     printf("************************************************************");
     printf("Please enter your account to login");
     printf("************************************************************");
-    scanf("Username:%c",&userInputName);
-    scanf("Password:%c",&userInputPassword);
+    scanf("Username:%s",userInputName);
+    scanf("Password:%s",userInputPassword);
     
     if(userInputName == students[i].firstName && userInputPassword == students[i].passWord){
         printf("************************************************************");
@@ -75,7 +76,7 @@ void listAvarableCourses(){
     printf("Avarable courses are:\n");
     
     for(int i = 0;i < 4;i++){
-        printf("%c\n",students[i].course);
+        printf("%s\n",students[i].course);
     }
 }
 
@@ -83,9 +84,9 @@ void listStudents(){
     
     /*   option(7) List all students   */
     for(int i = 0; i < 8; i++){
-        printf("First name:%c\n", students[i].firstName);
-        printf("Last name:%c\n", students[i].lastName);
-        printf("Student ID:%c\n", students[i].studentID);
+        printf("First name:%s\n", students[i].firstName);
+        printf("Last name:%s\n", students[i].lastName);
+        printf("Student ID:%s\n", students[i].studentID);
         printf("Gender:%c\n", students[i].gender);
         printf("------------------\n");
     }
