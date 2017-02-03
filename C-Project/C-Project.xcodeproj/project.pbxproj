@@ -25,10 +25,10 @@
 /* Begin PBXFileReference section */
 		847801DB1E441D2900A21BB9 /* C-Project */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "C-Project"; sourceTree = BUILT_PRODUCTS_DIR; };
 		847801DE1E441D2900A21BB9 /* main.c */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
-		847801E51E442F7400A21BB9 /* Courses.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Courses.txt; sourceTree = "<group>"; };
-		847801E61E442F7D00A21BB9 /* Accounts.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Accounts.txt; sourceTree = "<group>"; };
-		847801E71E442F7D00A21BB9 /* Students.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = Students.txt; sourceTree = "<group>"; };
-		847801E81E442F7D00A21BB9 /* StudentsCourses.txt */ = {isa = PBXFileReference; lastKnownFileType = text; path = StudentsCourses.txt; sourceTree = "<group>"; };
+		847801EA1E443D1100A21BB9 /* Students.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Students.txt; sourceTree = "<group>"; };
+		847801EB1E443D8500A21BB9 /* Courses.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Courses.txt; sourceTree = "<group>"; };
+		847801EC1E443D8500A21BB9 /* StudentsCourses.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = StudentsCourses.txt; sourceTree = "<group>"; };
+		847801ED1E443D8500A21BB9 /* Accounts.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = Accounts.txt; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -47,6 +47,10 @@
 			children = (
 				847801DD1E441D2900A21BB9 /* C-Project */,
 				847801DC1E441D2900A21BB9 /* Products */,
+				847801EB1E443D8500A21BB9 /* Courses.txt */,
+				847801EC1E443D8500A21BB9 /* StudentsCourses.txt */,
+				847801ED1E443D8500A21BB9 /* Accounts.txt */,
+				847801EA1E443D1100A21BB9 /* Students.txt */,
 			);
 			sourceTree = "<group>";
 		};
@@ -61,10 +65,6 @@
 		847801DD1E441D2900A21BB9 /* C-Project */ = {
 			isa = PBXGroup;
 			children = (
-				847801E51E442F7400A21BB9 /* Courses.txt */,
-				847801E61E442F7D00A21BB9 /* Accounts.txt */,
-				847801E71E442F7D00A21BB9 /* Students.txt */,
-				847801E81E442F7D00A21BB9 /* StudentsCourses.txt */,
 				847801DE1E441D2900A21BB9 /* main.c */,
 			);
 			path = "C-Project";

@@ -18,6 +18,11 @@ void ListAllCourses();
 void ListAllStudents();
 void mylogout();
 
+#define FILE_STUDENTS "/Users/admin/Documents/Study/C/Project/C-Project/Students.txt"
+#define FILE_STUDENTSCOURSES "/Users/admin/Documents/Study/C/Project/C-Project/StudentsCourses.txt"
+#define FILE_ACCOUNTS "/Users/admin/Documents/Study/C/Project/C-Project/Accounts.txt"
+#define FILE_COURSES "/Users/admin/Documents/Study/C/Project/C-Project/Courses.txt"
+
 int main(int argc, const char * argv[]) {
     
     operator();
@@ -70,15 +75,37 @@ void operator() {
                 break;
                 
             case 9:
-                printf("Exit. Thank you.\n");
+                printf("Exit. Thank you.\n\n");
                 break;
                 
             default:
-                printf("Please enter the correct option.\n");
+                printf("Please enter the correct option.\n\n");
                 break;
         }
     }
 }
+
+
+void readFile(char *filename) {
+    
+    // Open file
+    FILE* file = fopen(filename, "r");
+    
+    if (file != NULL) {
+        
+        // Maximum Character size on a line
+        char maxCharCount[200];
+        
+        // Read each line by while loop
+        while (fgets(maxCharCount, sizeof maxCharCount, file) != NULL) {
+            
+            fputs(maxCharCount, stdout);
+        }
+        
+        fclose(file);
+    }
+}
+
 
 void printMenu() {
     printf("************************************************************\n");
@@ -100,44 +127,69 @@ void printMenu() {
 void printEnrolment() {
     
     // TODO: Print user's enrolment.
-    printf("Print enrolment certificate ...\n");
+    printf("Dear Sir/Madam,\n\n");
+    printf("This is to certify that Mr. Peter Brown with student id7813007 is a student at grade 1 at CICCC. ");
+    printf("He was admitted to our college in 2011 and has taken 1 course(s). ");
+    printf("Currently he resides at 850 West Vancouver, Vancouver.\n\n");
+    printf("If you have any question, please don’t hesitate to contact us.");
+    printf("\n\nThanks,\nWilliams,\n\n");
 }
 
 
 void printCourses() {
     
     // TODO: Print user's courses.
-    printf("Print courses ...\n");
+    printf("Hi Mr. Peter Brown,\n");
+    printf("You have taken the following courses:\n");
+    printf("1)MADP101: Objective-C\n");
+    printf("2)MADP202:ProjectManagement\n");
+    printf("3)MADP301:Java Programming\n");
+    printf("4)MADP401:Android Programming\n\n");
 }
 
 
 void printTranscript() {
     
     // TODO: Print user's transcript.
-    printf("Print transcript ...\n");
+    printf("Hi Mr. Peter Brown,\n");
+    printf("Here is your transcript:\n");
+    printf("1)MADP101: Objective-C: 80\n");
+    printf("2)MADP202: Project Management: 45\n");
+    printf("3)MADP301: Java Programming: 64\n");
+    printf("4)MADP401: Android Programming: 70\n");
+    printf("YOUR GPA IS: 64.75\n\n");
 }
 
 
 void printGPA() {
     
     // TODO: Print user's GPA.
-    printf("Print GPA ...\n");
+    printf("Hi Mr. Peter Brown,\n");
+    printf("Your GPA is 64.75\n\n");
 }
 
 
 void printRanking() {
     
     // TODO: Print ranking among all studentsin the college.
-    printf("Print ranking among all studentsin the college ...\n");
+    printf("Hi Mr. Peter Brown,\n");
+    printf("Your GPA is 64.75and therefore your rank is 3\n\n");
 }
-
 
 
 void ListAllCourses() {
     
     // TODO: List all available courses.
     // If the user entered ‘6’, the program will printthe list of all available courses in the college in the following format and then printthemenu.
-    printf("List all available courses ...\n");
+    printf("The following courses are offered in CICCC:\n");
+    printf("1)MADP101: Objective-C\n");
+    printf("2)MADP102: Object-Oriented Programming\n");
+    printf("3)MADP201: Problem Solving\n");
+    printf("4)MADP202: Project Management\n");
+    printf("5)MADP301: Java Programming\n");
+    printf("6)MADP302: Web Development\n");
+    printf("7)MADP401: Android Programming\n");
+    printf("8)MADP402: iOS Applications\n\n");
 }
 
 
@@ -153,11 +205,12 @@ void ListAllStudents() {
     printf("4)Adams Wang: 7812999\n\n");
 }
 
+
 void mylogout() {
     
-    // TODO: logout.
+    // TODO: Call login function
     
     // If the user entered‘8’, the program will print the login menu and let the user login again with the same or different account.
-    printf("Logout! Thank you.\n");
+    printf("Logout! Thank you.\n\n");
 }
 
