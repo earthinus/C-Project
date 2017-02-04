@@ -6,7 +6,9 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
 
+void myLogin();
 void operator();
 void printMenu();
 void printEnrolment();
@@ -16,18 +18,81 @@ void printGPA();
 void printRanking();
 void ListAllCourses();
 void ListAllStudents();
-void mylogout();
+void myLogout();
+
+char* userInputName;
+char* userInputPassword;
+int i;
 
 #define FILE_STUDENTS "/Users/admin/Documents/Study/C/Project/C-Project/Students.txt"
 #define FILE_STUDENTSCOURSES "/Users/admin/Documents/Study/C/Project/C-Project/StudentsCourses.txt"
 #define FILE_ACCOUNTS "/Users/admin/Documents/Study/C/Project/C-Project/Accounts.txt"
 #define FILE_COURSES "/Users/admin/Documents/Study/C/Project/C-Project/Courses.txt"
 
+typedef struct student {
+    char* studentID;
+    char* firstName;
+    char* lastName;
+    char* passWord;
+    char gender;
+    double gpa;
+    char* address;
+    int admission_year;
+    char* course;
+} STUDENT;
+
+
 int main(int argc, const char * argv[]) {
     
-    operator();
+    myLogin();
     
     return 0;
+}
+
+
+void readFile(char *filename) {
+    
+    // Open file
+    FILE* file = fopen(filename, "r");
+    
+    if (file != NULL) {
+        
+        // Maximum Character size on a line
+        char maxCharCount[200];
+        
+        // Read each line by while loop
+        while (fgets(maxCharCount, sizeof maxCharCount, file) != NULL) {
+            
+            fputs(maxCharCount, stdout);
+        }
+        
+        fclose(file);
+    }
+}
+
+
+/* Login Function */
+
+void login(){
+    
+    printf("************************************************************");
+    printf("Please enter your account to login");
+    printf("************************************************************");
+    scanf("Username:%s",userInputName);
+    scanf("Password:%s",userInputPassword);
+    
+    if(userInputName == students[i].firstName && userInputPassword == students[i].passWord) {
+        printf("************************************************************");
+        printf("Welcome to Cornerstone International College of Canada.");
+        printf("************************************************************");
+        
+        operator();
+        
+    } else {
+        printf("************************************************************");
+        printf("Your account does not exist. Please try again!");
+        printf("************************************************************");
+    }
 }
 
 
@@ -71,7 +136,7 @@ void operator() {
                 break;
                 
             case 8:
-                mylogout();
+                myLogout();
                 break;
                 
             case 9:
@@ -86,28 +151,8 @@ void operator() {
 }
 
 
-void readFile(char *filename) {
-    
-    // Open file
-    FILE* file = fopen(filename, "r");
-    
-    if (file != NULL) {
-        
-        // Maximum Character size on a line
-        char maxCharCount[200];
-        
-        // Read each line by while loop
-        while (fgets(maxCharCount, sizeof maxCharCount, file) != NULL) {
-            
-            fputs(maxCharCount, stdout);
-        }
-        
-        fclose(file);
-    }
-}
-
-
 void printMenu() {
+    
     printf("************************************************************\n");
     printf("Select from the options:\n");
     printf("************************************************************\n");
@@ -181,15 +226,19 @@ void ListAllCourses() {
     
     // TODO: List all available courses.
     // If the user entered ‘6’, the program will printthe list of all available courses in the college in the following format and then printthemenu.
-    printf("The following courses are offered in CICCC:\n");
-    printf("1)MADP101: Objective-C\n");
-    printf("2)MADP102: Object-Oriented Programming\n");
-    printf("3)MADP201: Problem Solving\n");
-    printf("4)MADP202: Project Management\n");
-    printf("5)MADP301: Java Programming\n");
-    printf("6)MADP302: Web Development\n");
-    printf("7)MADP401: Android Programming\n");
-    printf("8)MADP402: iOS Applications\n\n");
+//    printf("The following courses are offered in CICCC:\n");
+//    printf("1)MADP101: Objective-C\n");
+//    printf("2)MADP102: Object-Oriented Programming\n");
+//    printf("3)MADP201: Problem Solving\n");
+//    printf("4)MADP202: Project Management\n");
+//    printf("5)MADP301: Java Programming\n");
+//    printf("6)MADP302: Web Development\n");
+//    printf("7)MADP401: Android Programming\n");
+//    printf("8)MADP402: iOS Applications\n\n");
+    
+    for(int i = 0;i < 4;i++){
+        printf("%s\n", students[i].course);
+    }
 }
 
 
@@ -198,19 +247,27 @@ void ListAllStudents() {
     // TODO: List all students.
     // If the user enters ‘7’, the program will printthe list of all students in the college in the following format and then printthe menu.
     
-    printf("There are 4 students in CICCC as following:\n");
-    printf("1)Peter Brown: 7813007\n");
-    printf("2)Joseph Rod: 812345\n");
-    printf("3)Cristina Li: 8012333\n");
-    printf("4)Adams Wang: 7812999\n\n");
+//    printf("There are 4 students in CICCC as following:\n");
+//    printf("1)Peter Brown: 7813007\n");
+//    printf("2)Joseph Rod: 812345\n");
+//    printf("3)Cristina Li: 8012333\n");
+//    printf("4)Adams Wang: 7812999\n\n");
+    
+    
+    for(int i = 0; i < 8; i++){
+        printf("First name:%s\n", students[i].firstName);
+        printf("Last name:%s\n", students[i].lastName);
+        printf("Student ID:%s\n", students[i].studentID);
+        printf("Gender:%c\n", students[i].gender);
+        printf("------------------\n");
+    }
 }
 
 
-void mylogout() {
+void myLogout() {
     
     // TODO: Call login function
     
     // If the user entered‘8’, the program will print the login menu and let the user login again with the same or different account.
     printf("Logout! Thank you.\n\n");
 }
-
