@@ -7,7 +7,10 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <assert.h>
 
+void readFile(char *filename);
 void myLogin();
 void operator();
 void printMenu();
@@ -20,16 +23,12 @@ void ListAllCourses();
 void ListAllStudents();
 void myLogout();
 
-char* userInputName;
-char* userInputPassword;
-int i;
+#define FILE_STUDENTS "Students.txt"
+#define FILE_STUDENTSCOURSES "StudentsCourses.txt"
+#define FILE_ACCOUNTS "Accounts.txt"
+#define FILE_COURSES "Courses.txt"
 
-#define FILE_STUDENTS "/Users/admin/Documents/Study/C/Project/C-Project/Students.txt"
-#define FILE_STUDENTSCOURSES "/Users/admin/Documents/Study/C/Project/C-Project/StudentsCourses.txt"
-#define FILE_ACCOUNTS "/Users/admin/Documents/Study/C/Project/C-Project/Accounts.txt"
-#define FILE_COURSES "/Users/admin/Documents/Study/C/Project/C-Project/Courses.txt"
-
-typedef struct student {
+struct student {
     char* studentID;
     char* firstName;
     char* lastName;
@@ -39,12 +38,83 @@ typedef struct student {
     char* address;
     int admission_year;
     char* course;
-} STUDENT;
+};
+
+
+char** str_split(char* a_str, const char a_delim)
+{
+    char** result    = 0;
+    size_t count     = 0;
+    char* tmp        = a_str;
+    char* last_comma = 0;
+    char delim[2];
+    delim[0] = a_delim;
+    delim[1] = 0;
+    
+    /* Count how many elements will be extracted. */
+    while (*tmp)
+    {
+        if (a_delim == *tmp)
+        {
+            count++;
+            last_comma = tmp;
+        }
+        tmp++;
+    }
+    
+    /* Add space for trailing token. */
+    count += last_comma < (a_str + strlen(a_str) - 1);
+    
+    /* Add space for terminating null string so caller
+     knows where the list of returned strings ends. */
+    count++;
+    
+    result = malloc(sizeof(char*) * count);
+    
+    if (result)
+    {
+        size_t idx  = 0;
+        char* token = strtok(a_str, delim);
+        
+        while (token)
+        {
+            assert(idx < count);
+            *(result + idx++) = strdup(token);
+            token = strtok(0, delim);
+        }
+        assert(idx == count - 1);
+        *(result + idx) = 0;
+    }
+    
+    return result;
+}
 
 
 int main(int argc, const char * argv[]) {
     
-    myLogin();
+    
+    
+//    struct student students[10];
+//    
+//    students[0].studentID = "Peter";
+//    
+//    printf("Displaying Information:\n\n");
+//    
+//    for(int i = 0; i < 1; ++i) {
+//        
+//        printf("Member: %d\n", i + 1);
+//        printf("ID: ");
+//        puts(students[i].studentID);
+//        //printf("Marks: %.1f",students[i].marks);
+//        printf("\n");
+//    }
+//    
+    
+    readFile(FILE_STUDENTS);
+    
+    
+    
+    //myLogin();
     
     return 0;
 }
@@ -64,6 +134,64 @@ void readFile(char *filename) {
         while (fgets(maxCharCount, sizeof maxCharCount, file) != NULL) {
             
             fputs(maxCharCount, stdout);
+            
+            
+            char** tokens;
+            
+            char doubleQuotation = '\xe2';
+            
+            tokens = str_split(maxCharCount, ':');
+            
+            if (tokens) {
+                
+                int i;
+                
+                for (i = 0; *(tokens + i); i++) {
+                    
+                    /*
+                     What's strncmp() ?
+                     - This function is to compare 2 strings that are specified numbers of character.
+                     
+                     format:
+                     strncmp(char* string1, char* string2, int 10(= number of character));
+                     
+                     - If the return value equals 0, it means these strings are exactly same.
+                       If not 0, these are different strings.
+                    */
+                    
+                    //int checkFistChar = strncmp( *(tokens + i), doubleQuotation, 1 );
+                    
+                    if (**(&tokens[i]) == doubleQuotation) {
+                        
+                        // ダブルクオーテーションが含まれているなら、それを除外する
+                        
+                        char propaty[100] = {};
+                        int k;
+                        
+                        // 1文字ずつチェックする
+                        for (int j = 0; *(&*tokens[1] + j) != '\x80'; j++) {
+                            
+                            
+                            if (*(&*tokens[1] + j) != doubleQuotation) {
+
+                                propaty[k] = *(&*tokens[1] + j);
+                                printf("%c\n", propaty[k]);
+                                k++;
+                            }
+                        }
+                        
+                    } else {
+                        
+                        // ダブルクオーテーションが含まれていなければ、文字列をprintする
+                        printf("%s\n", *(tokens + i));
+                    }
+                    
+                    // mallocを呼び出して割り当てたメモリブロックを解放
+                    //free(*(tokens + i));
+                }
+                printf("\n");
+                free(tokens);
+            }
         }
         
         fclose(file);
@@ -75,24 +203,27 @@ void readFile(char *filename) {
 
 void login(){
     
-    printf("************************************************************");
-    printf("Please enter your account to login");
-    printf("************************************************************");
-    scanf("Username:%s",userInputName);
-    scanf("Password:%s",userInputPassword);
+    char* userInputName;
+    char* userInputPassword;
     
-    if(userInputName == students[i].firstName && userInputPassword == students[i].passWord) {
-        printf("************************************************************");
-        printf("Welcome to Cornerstone International College of Canada.");
-        printf("************************************************************");
-        
-        operator();
-        
-    } else {
-        printf("************************************************************");
-        printf("Your account does not exist. Please try again!");
-        printf("************************************************************");
-    }
+    printf("************************************************************\n");
+    printf("Please enter your account to login\n");
+    printf("************************************************************\n");
+    scanf("Username:%s", userInputName);
+    scanf("Password:%s", userInputPassword);
+    
+//    if(userInputName == students[i].firstName && userInputPassword == students[i].passWord) {
+//        printf("************************************************************");
+//        printf("Welcome to Cornerstone International College of Canada.");
+//        printf("************************************************************");
+//        
+//        operator();
+//        
+//    } else {
+//        printf("************************************************************");
+//        printf("Your account does not exist. Please try again!");
+//        printf("************************************************************");
+//    }
 }
 
 
@@ -236,9 +367,9 @@ void ListAllCourses() {
 //    printf("7)MADP401: Android Programming\n");
 //    printf("8)MADP402: iOS Applications\n\n");
     
-    for(int i = 0;i < 4;i++){
-        printf("%s\n", students[i].course);
-    }
+//    for(int i = 0;i < 4;i++){
+//        printf("%s\n", students[i].course);
+//    }
 }
 
 
@@ -254,13 +385,13 @@ void ListAllStudents() {
 //    printf("4)Adams Wang: 7812999\n\n");
     
     
-    for(int i = 0; i < 8; i++){
-        printf("First name:%s\n", students[i].firstName);
-        printf("Last name:%s\n", students[i].lastName);
-        printf("Student ID:%s\n", students[i].studentID);
-        printf("Gender:%c\n", students[i].gender);
-        printf("------------------\n");
-    }
+//    for(int i = 0; i < 8; i++){
+//        printf("First name:%s\n", students[i].firstName);
+//        printf("Last name:%s\n", students[i].lastName);
+//        printf("Student ID:%s\n", students[i].studentID);
+//        printf("Gender:%c\n", students[i].gender);
+//        printf("------------------\n");
+//    }
 }
 
 
