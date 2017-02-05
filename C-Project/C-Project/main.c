@@ -7,10 +7,13 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 #include <string.h>
 #include <assert.h>
 
 void readFile(char *filename);
+char** splitKeyValue(char* readline);
+void storeStudent(int studentIndex, char** result);
 void myLogin();
 void operator();
 void printMenu();
@@ -33,88 +36,32 @@ struct student {
     char* firstName;
     char* lastName;
     char* passWord;
-    char gender;
-    double gpa;
+    char* gender;
+    char* grade;
+    char* mark;
     char* address;
-    int admission_year;
-    char* course;
-};
+    char* admission_year;
+    char* courses;
+} students[3];
 
-
-char** str_split(char* a_str, const char a_delim)
-{
-    char** result    = 0;
-    size_t count     = 0;
-    char* tmp        = a_str;
-    char* last_comma = 0;
-    char delim[2];
-    delim[0] = a_delim;
-    delim[1] = 0;
-    
-    /* Count how many elements will be extracted. */
-    while (*tmp)
-    {
-        if (a_delim == *tmp)
-        {
-            count++;
-            last_comma = tmp;
-        }
-        tmp++;
-    }
-    
-    /* Add space for trailing token. */
-    count += last_comma < (a_str + strlen(a_str) - 1);
-    
-    /* Add space for terminating null string so caller
-     knows where the list of returned strings ends. */
-    count++;
-    
-    result = malloc(sizeof(char*) * count);
-    
-    if (result)
-    {
-        size_t idx  = 0;
-        char* token = strtok(a_str, delim);
-        
-        while (token)
-        {
-            assert(idx < count);
-            *(result + idx++) = strdup(token);
-            token = strtok(0, delim);
-        }
-        assert(idx == count - 1);
-        *(result + idx) = 0;
-    }
-    
-    return result;
-}
-
+struct course {
+    char* courseID;
+    char* name;
+} course[3];
 
 int main(int argc, const char * argv[]) {
     
-    
-    
-//    struct student students[10];
-//    
-//    students[0].studentID = "Peter";
-//    
-//    printf("Displaying Information:\n\n");
-//    
-//    for(int i = 0; i < 1; ++i) {
-//        
-//        printf("Member: %d\n", i + 1);
-//        printf("ID: ");
-//        puts(students[i].studentID);
-//        //printf("Marks: %.1f",students[i].marks);
-//        printf("\n");
-//    }
-//    
-    
+    // Read files
     readFile(FILE_STUDENTS);
     
     
+    // Print students info
+//    printf("Displaying Information:\n\n");
+    
     
     //myLogin();
+    
+    printf("Storing was succeeded!\nstudents[0].studentID = %s\n", students[0].studentID);
     
     return 0;
 }
@@ -122,76 +69,30 @@ int main(int argc, const char * argv[]) {
 
 void readFile(char *filename) {
     
+    char** result;
+    
     // Open file
+    printf("============= Opened %s =============\n\n", filename);
     FILE* file = fopen(filename, "r");
     
     if (file != NULL) {
         
-        // Maximum Character size on a line
-        char maxCharCount[200];
+        // Max length of a line = 200
+        char readline[200];
         
-        // Read each line by while loop
-        while (fgets(maxCharCount, sizeof maxCharCount, file) != NULL) {
+        // Split keys and values on each line
+        while (fgets(readline, 200, file) != NULL) {
             
-            fputs(maxCharCount, stdout);
+            // fputs(readline, stdout);
             
+            result = splitKeyValue(readline);
             
-            char** tokens;
+            printf("key: %s\n", *result);
+            printf("value: %s\n", *(result+1));
             
-            char doubleQuotation = '\xe2';
+            // Store to struct Student
+            storeStudent(0, result);
             
-            tokens = str_split(maxCharCount, ':');
-            
-            if (tokens) {
-                
-                int i;
-                
-                for (i = 0; *(tokens + i); i++) {
-                    
-                    /*
-                     What's strncmp() ?
-                     - This function is to compare 2 strings that are specified numbers of character.
-                     
-                     format:
-                     strncmp(char* string1, char* string2, int 10(= number of character));
-                     
-                     - If the return value equals 0, it means these strings are exactly same.
-                       If not 0, these are different strings.
-                    */
-                    
-                    //int checkFistChar = strncmp( *(tokens + i), doubleQuotation, 1 );
-                    
-                    if (**(&tokens[i]) == doubleQuotation) {
-                        
-                        // ダブルクオーテーションが含まれているなら、それを除外する
-                        
-                        char propaty[100] = {};
-                        int k;
-                        
-                        // 1文字ずつチェックする
-                        for (int j = 0; *(&*tokens[1] + j) != '\x80'; j++) {
-                            
-                            
-                            if (*(&*tokens[1] + j) != doubleQuotation) {
-
-                                propaty[k] = *(&*tokens[1] + j);
-                                printf("%c\n", propaty[k]);
-                                k++;
-                            }
-                        }
-                        
-                    } else {
-                        
-                        // ダブルクオーテーションが含まれていなければ、文字列をprintする
-                        printf("%s\n", *(tokens + i));
-                    }
-                    
-                    // mallocを呼び出して割り当てたメモリブロックを解放
-                    //free(*(tokens + i));
-                }
-                printf("\n");
-                free(tokens);
-            }
         }
         
         fclose(file);
@@ -199,9 +100,124 @@ void readFile(char *filename) {
 }
 
 
+char** splitKeyValue(char* readline) { // readline is "studentID:”7813007”\n"
+    
+    char colon = ':';
+    char doubleQuo = '\xe2';
+    
+    // Get key's length
+    int keyLength = 0;
+    while (readline[keyLength] != colon) {
+        keyLength++;
+    }
+    
+    // Get value's length
+    int valueLength = 0;
+    int startIndex = keyLength;
+    bool hasDoubleQuo = false;
+    while (readline[startIndex] != '\n') {
+        valueLength++;
+        startIndex++;
+        
+        // Check the double quotations
+        if (readline[valueLength] == doubleQuo) {
+            hasDoubleQuo = true;
+        }
+    }
+    
+    // Store key
+    char* key   = (char*) malloc(keyLength * sizeof(char)); // Allocate key, value
+    for (int i = 0; i < keyLength; i++) {
+        key[i] = readline[i];
+    }
+    
+    // Store value
+    startIndex = keyLength + sizeof(colon);
+    char* value = (char*) malloc(valueLength * sizeof(char)); // Allocate value
+    for (int j = 0; j < valueLength; j++) {
+        value[j] = readline[startIndex + j];
+    }
+    
+    // Store result
+    char** result;
+    result = malloc(sizeof(char*) * 2);
+    result[0] = key;
+    result[1] = value;
+    
+    return result;
+}
+
+
+void storeStudent(int studentIndex, char** result) {
+    
+    char *studentID = "studentID",
+    *name = "name",
+    *passWord = "passWord",
+    *gender = "gender",
+    *mark = "mark",
+    *grade = "grade",
+    *address = "address",
+    *admission_year = "admission_year",
+    *courses = "courses";
+    
+    // ↓MEMO: stringの場合はswich文が使えないようなので、ifで対応
+    
+    // studentID
+    if (strncmp(*result, studentID, sizeof(*studentID)) == 0) {
+        students[studentIndex].studentID = *(result + 1);
+        
+    // Name
+    } else if(strncmp(*result, name, sizeof(*name)) == 0) {
+        
+        // TODO: Split firstname and lastname
+        
+        students[studentIndex].firstName = *(result + 1);
+        
+    // Password
+    } else if(strncmp(*result, passWord, sizeof(*passWord)) == 0) {
+        students[studentIndex].passWord = *(result + 1);
+        
+    // Gender
+    } else if(strncmp(*result, gender, sizeof(*gender)) == 0) {
+        students[studentIndex].gender = *(result + 1);
+        
+    // Mark
+    } else if(strncmp(*result, mark, sizeof(*mark)) == 0) {
+        
+        // TODO: casting from str to int
+        
+        students[studentIndex].mark = *(result + 1);
+        
+    // Grade
+    } else if(strncmp(*result, grade, sizeof(*grade)) == 0) {
+        
+        // TODO: casting from str to int
+        
+        students[studentIndex].grade = *(result + 1);
+       
+    // Address
+    } else if(strncmp(*result, address, sizeof(*address)) == 0) {
+        students[studentIndex].address = *(result + 1);
+        
+    // Admission year
+    } else if(strncmp(*result, admission_year, sizeof(*admission_year)) == 0) {
+        
+        // TODO: casting from str to int
+        
+        students[studentIndex].admission_year = *(result + 1);
+        
+    } else if(strncmp(*result, courses, sizeof(*courses)) == 0) {
+        
+        // TODO: split multiple cousers
+        
+        students[studentIndex].courses = *(result + 1);
+    }
+}
+
+
 /* Login Function */
 
-void login(){
+void login() {
     
     char* userInputName;
     char* userInputPassword;
@@ -211,6 +227,8 @@ void login(){
     printf("************************************************************\n");
     scanf("Username:%s", userInputName);
     scanf("Password:%s", userInputPassword);
+    
+    // TODO: ↓ @Mai / Compare with struct student by for loop
     
 //    if(userInputName == students[i].firstName && userInputPassword == students[i].passWord) {
 //        printf("************************************************************");
@@ -357,15 +375,16 @@ void ListAllCourses() {
     
     // TODO: List all available courses.
     // If the user entered ‘6’, the program will printthe list of all available courses in the college in the following format and then printthemenu.
-//    printf("The following courses are offered in CICCC:\n");
-//    printf("1)MADP101: Objective-C\n");
-//    printf("2)MADP102: Object-Oriented Programming\n");
-//    printf("3)MADP201: Problem Solving\n");
-//    printf("4)MADP202: Project Management\n");
-//    printf("5)MADP301: Java Programming\n");
-//    printf("6)MADP302: Web Development\n");
-//    printf("7)MADP401: Android Programming\n");
-//    printf("8)MADP402: iOS Applications\n\n");
+    
+    printf("The following courses are offered in CICCC:\n");
+    printf("1)MADP101: Objective-C\n");
+    printf("2)MADP102: Object-Oriented Programming\n");
+    printf("3)MADP201: Problem Solving\n");
+    printf("4)MADP202: Project Management\n");
+    printf("5)MADP301: Java Programming\n");
+    printf("6)MADP302: Web Development\n");
+    printf("7)MADP401: Android Programming\n");
+    printf("8)MADP402: iOS Applications\n\n");
     
 //    for(int i = 0;i < 4;i++){
 //        printf("%s\n", students[i].course);
@@ -378,11 +397,11 @@ void ListAllStudents() {
     // TODO: List all students.
     // If the user enters ‘7’, the program will printthe list of all students in the college in the following format and then printthe menu.
     
-//    printf("There are 4 students in CICCC as following:\n");
-//    printf("1)Peter Brown: 7813007\n");
-//    printf("2)Joseph Rod: 812345\n");
-//    printf("3)Cristina Li: 8012333\n");
-//    printf("4)Adams Wang: 7812999\n\n");
+    printf("There are 4 students in CICCC as following:\n");
+    printf("1)Peter Brown: 7813007\n");
+    printf("2)Joseph Rod: 812345\n");
+    printf("3)Cristina Li: 8012333\n");
+    printf("4)Adams Wang: 7812999\n\n");
     
     
 //    for(int i = 0; i < 8; i++){
@@ -395,7 +414,7 @@ void ListAllStudents() {
 }
 
 
-void myLogout() {
+void myLogout() { // MEMO: ←logout()は予約語のようなので、代わりにmyLogoutにした。
     
     // TODO: Call login function
     
