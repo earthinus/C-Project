@@ -54,6 +54,7 @@ int main(int argc, const char * argv[]) {
     char *loginUser = "7813007"; // TODO: ←後で動的にする（myLogin()でreturnする）
     
     myLogin();
+    printMenu();
     operator(loginUser);
     
     return 0;
@@ -246,7 +247,7 @@ int myLogin(int loginUserName) {
     
     int count = 3; // TODO: Change to a dynamic number later
     bool IDpassMatch = true;
-    // ↑falseにしとくといきなりwhileループする
+
     loginUserName = -1;
     // ↑結局同じ事なのでどっちかひとつでOK
     
@@ -279,13 +280,13 @@ int myLogin(int loginUserName) {
         printf("\n");
 
         if(IDpassMatch == true) {
-            printf("************************************************************");
-            printf("Welcome to Cornerstone International College of Canada.");
-            printf("************************************************************");
+            printf("************************************************************\n");
+            printf("Welcome to Cornerstone International College of Canada.\n");
+            printf("************************************************************\n");
         } else {
-            printf("************************************************************");
-            printf("Your account does not exist. Please try again!");
-            printf("************************************************************");
+            printf("************************************************************\n");
+            printf("Your account does not exist. Please try again!\n");
+            printf("************************************************************\n");
         }
     }
     
