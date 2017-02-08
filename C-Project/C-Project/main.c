@@ -7,9 +7,16 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
+#include <string.h>
+#include <assert.h>
 
+void readFile(char *filename);
+char** splitKeyValue(char* readline);
+void storeStudent(int studentIndex, char** result);
+void storeCourse(int courseIndex, char** result);
 void myLogin();
-void operator();
+void operator(int loginUser);
 void printMenu();
 void printEnrolment();
 void printCourses();
@@ -20,27 +27,27 @@ void ListAllCourses();
 void ListAllStudents();
 void myLogout();
 
-char* userInputName;
-char* userInputPassword;
-int i;
+#define FILE_STUDENTS "Students.txt"
+#define FILE_STUDENTSCOURSES "StudentsCourses.txt"
+#define FILE_ACCOUNTS "Accounts.txt"
+#define FILE_COURSES "Courses.txt"
 
-#define FILE_STUDENTS "/Users/admin/Documents/Study/C/Project/C-Project/Students.txt"
-#define FILE_STUDENTSCOURSES "/Users/admin/Documents/Study/C/Project/C-Project/StudentsCourses.txt"
-#define FILE_ACCOUNTS "/Users/admin/Documents/Study/C/Project/C-Project/Accounts.txt"
-#define FILE_COURSES "/Users/admin/Documents/Study/C/Project/C-Project/Courses.txt"
-
-typedef struct student {
+struct student {
     char* studentID;
-    char* firstName;
-    char* lastName;
+    char* name;
     char* passWord;
-    char gender;
-    double gpa;
+    char* gender;
+    char* grade;
+    char* mark;
     char* address;
-    int admission_year;
-    char* course;
-} STUDENT;
+    char* admission_year;
+    char* courses;
+} students[3];
 
+struct course {
+    char* courseID;
+    char* name;
+} course[3];
 
 int main(int argc, const char * argv[]) {
     
@@ -52,53 +59,253 @@ int main(int argc, const char * argv[]) {
 
 void readFile(char *filename) {
     
+    char** result;
+    int indexGroup = 0; // number of groups
+    int count = 1;
+    
     // Open file
     FILE* file = fopen(filename, "r");
     
     if (file != NULL) {
         
-        // Maximum Character size on a line
-        char maxCharCount[200];
+        // Max length of a line = 200
+        char readline[200];
         
-        // Read each line by while loop
-        while (fgets(maxCharCount, sizeof maxCharCount, file) != NULL) {
-            
-            fputs(maxCharCount, stdout);
+        // Cout the number of groups of data
+        while (fgets(readline, 200, file) != NULL) {
+            //printf("%s\n", readline);
+            if (readline[0] == '\n') {
+                count++;
+            }
         }
+        printf("count = %d\n\n", count); // TODO: 後で消す
         
-        fclose(file);
+        // Allocate
+        result = (char**) malloc(2 * sizeof(char)); // 2 : to store key and value
+        
+        // Split keys and values on each line
+        rewind(file);
+        while (fgets(readline, 200, file) != NULL) {
+            
+            if (readline[0] != '\n') {
+                
+                result = splitKeyValue(readline); // result : studentID, 7813007
+                
+                // Store to structure
+                if (filename == FILE_STUDENTS || filename == FILE_STUDENTSCOURSES || filename == FILE_STUDENTS || filename == FILE_ACCOUNTS) {
+                    
+                    // to student
+                    storeStudent(indexGroup, result); // group = order of group, result = key & value
+                    
+                } else if (filename == FILE_COURSES) {
+                    
+                    // to couse
+                    storeCourse(indexGroup, result);
+                }
+                
+            } else {
+                indexGroup++;
+            }
+        }
+    }
+    fclose(file);
+}
+
+
+char** splitKeyValue(char* readline) { // readline is "studentID:”7813007”\n"
+    
+    char colon = ':';
+    char doubleQuo = '\xe2';
+    
+    // Get key's length
+    int keyLength = 0;
+    while (readline[keyLength] != colon) {
+        keyLength++;
+    }
+    
+    // Get value's length
+    int valueLength = 0;
+    int startIndex = keyLength;
+    bool hasDoubleQuo = false;
+    while (readline[startIndex] != '\n') {
+        valueLength++;
+        startIndex++;
+        
+        // Check the double quotations
+        if (readline[valueLength] == doubleQuo) {
+            hasDoubleQuo = true;
+        }
+    }
+    
+    // Replace from \n to \0
+    readline[startIndex] = '\0';
+    
+    // Store key
+    char* key   = (char*) malloc(keyLength * sizeof(char)); // Allocate key, value
+    for (int i = 0; i < keyLength; i++) {
+        key[i] = readline[i];
+    }
+    
+    // Store value
+    startIndex = keyLength + sizeof(colon);
+    char* value = (char*) malloc(valueLength * sizeof(char)); // Allocate value
+    for (int j = 0; j < valueLength; j++) {
+        value[j] = readline[startIndex + j];
+    }
+    
+    // Store result
+    char** result;
+    result = malloc(sizeof(char*) * 2);
+    result[0] = key;
+    result[1] = value;
+    
+    return result; // result is the pointer of keys & values
+}
+
+
+void storeStudent(int studentIndex, char** result) {
+    
+    char *studentID = "studentID",
+    *name = "name",
+    *passWord = "passWord",
+    *gender = "gender",
+    *mark = "mark",
+    *grade = "grade",
+    *address = "address",
+    *admission_year = "admission_year",
+    *courses = "courses";
+    
+    // ↓MEMO: stringの場合はswich文が使えないようなので、ifで対応
+    
+    // studentID
+    if (strncmp(*result, studentID, sizeof(*studentID)) == 0) {
+        students[studentIndex].studentID = *(result + 1);
+        
+    // Name
+    } else if(strncmp(*result, name, sizeof(*name)) == 0) {
+        students[studentIndex].name = *(result + 1);
+        
+    // Password
+    } else if(strncmp(*result, passWord, sizeof(*passWord)) == 0) {
+        students[studentIndex].passWord = *(result + 1);
+        
+    // Gender
+    } else if(strncmp(*result, gender, sizeof(*gender)) == 0) {
+        students[studentIndex].gender = *(result + 1);
+        
+    // Mark
+    } else if(strncmp(*result, mark, sizeof(*mark)) == 0) {
+        students[studentIndex].mark = *(result + 1);
+        
+    // Grade
+    } else if(strncmp(*result, grade, sizeof(*grade)) == 0) {
+        students[studentIndex].grade = *(result + 1);
+       
+    // Address
+    } else if(strncmp(*result, address, sizeof(*address)) == 0) {
+        students[studentIndex].address = *(result + 1);
+        
+    // Admission year
+    } else if(strncmp(*result, admission_year, sizeof(*admission_year)) == 0) {
+        students[studentIndex].admission_year = *(result + 1);
+        
+    // Courses
+    } else if(strncmp(*result, courses, sizeof(*courses)) == 0) {
+        students[studentIndex].courses = *(result + 1);
     }
 }
 
+
+void storeCourse(int courseIndex, char** result) {
+    
+    char *courseID = "courseID",
+    *name = "name";
+    
+    // courseID
+    if (strncmp(*result, courseID, sizeof(*courseID)) == 0) {
+        course[courseIndex].courseID = *(result + 1);
+        
+    // Name
+    } else if(strncmp(*result, name, sizeof(*name)) == 0) {
+        course[courseIndex].name = *(result + 1);
+    }
+}
 
 /* Login Function */
 
-void login(){
+void myLogin() {
     
-    printf("************************************************************");
-    printf("Please enter your account to login");
-    printf("************************************************************");
-    scanf("Username:%s",userInputName);
-    scanf("Password:%s",userInputPassword);
+    // read file
+    readFile(FILE_ACCOUNTS);
     
-    if(userInputName == students[i].firstName && userInputPassword == students[i].passWord) {
-        printf("************************************************************");
-        printf("Welcome to Cornerstone International College of Canada.");
-        printf("************************************************************");
+    int count = 3; // TODO: Change to a dynamic number later
+
+    int loginUserIndex = -1,
+    resultStrncmpID,
+    resultStrncmpPW;
+    long maxLengthID,
+    maxLengthPW;
+    
+    // Allocate
+    char* inputID = malloc(100 * sizeof(char));
+    char* inputPW = malloc(100 * sizeof(char));
+    
+    printf("************************************************************\n");
+    printf("Please enter your account to login\n");
+    printf("************************************************************\n");
+    
+    while(loginUserIndex == -1) {
+        printf("ID      : ");
+        scanf("%s", inputID);
+        printf("Password: ");
+        scanf("%s", inputPW);
         
-        operator();
+        for(int i = 0; i < count; i++) {
+            
+            // Define length of ID
+            if (strlen(inputID) < strlen(students[i].studentID)) {
+                maxLengthID = strlen(students[i].studentID);
+                
+            } else {
+                maxLengthID = strlen(inputID);
+            }
+            
+            // Define length of password
+            if (strlen(inputPW) < strlen(students[i].passWord)) {
+                maxLengthPW = strlen(students[i].passWord);
+                
+            } else {
+                maxLengthPW = strlen(inputPW);
+            }
+            
+            // Check ID & PW that has been matched
+            resultStrncmpID = strncmp(inputID, students[i].studentID, sizeof(maxLengthID));
+            resultStrncmpPW = strncmp(inputPW, students[i].passWord,  sizeof(maxLengthPW));
+
+            // Both matched
+            if(resultStrncmpID == 0 && resultStrncmpPW == 0){
+                loginUserIndex = i;
+            }
+        }
         
-    } else {
-        printf("************************************************************");
-        printf("Your account does not exist. Please try again!");
-        printf("************************************************************");
+        if (loginUserIndex == -1) {
+            printf("\n************************************************************\n");
+            printf("Your account does not exist. Please try again!\n");
+            printf("************************************************************\n\n");
+        }
     }
+
+    printf("\n\n************************************************************\n");
+    printf("Welcome to Cornerstone International College of Canada.\n");
+    printf("************************************************************\n");
+
+    operator(loginUserIndex);
 }
 
 
-void operator() {
+void operator(int loginUserIndex) {
     
-    int input;
+    int input = 0;
     
     while (input != 9) {
         
@@ -153,7 +360,7 @@ void operator() {
 
 void printMenu() {
     
-    printf("************************************************************\n");
+    printf("\n\n************************************************************\n");
     printf("Select from the options:\n");
     printf("************************************************************\n");
     printf("-[1] Print myenrolment certificate\n");
@@ -206,26 +413,41 @@ void printTranscript() {
 }
 
 
-void printGPA() {
+void printGPA(char *loginUser) {
     
-    // TODO: Print user's GPA.
+    
+    // TODO: ↓ @Mai / GPAを求める
+    // make variablle(ex. gpa[],javaScore[],androidScore[]...)
+    // devide by number of subjects(just type 4)
     printf("Hi Mr. Peter Brown,\n");
     printf("Your GPA is 64.75\n\n");
 }
 
 
-void printRanking() {
+void printRanking(char *loginUser) {
     
-    // TODO: Print ranking among all studentsin the college.
-    printf("Hi Mr. Peter Brown,\n");
-    printf("Your GPA is 64.75and therefore your rank is 3\n\n");
+    readFile(FILE_STUDENTS);
+    
+    int i = 0;
+    
+    // Check the order of the loginUser
+    while (strncmp(loginUser, students[i].studentID, sizeof(*students[i].studentID)) == 0) {
+        i++;
+    }
+    
+    printf("Hi Mr. %s,\n", students[i].name);
+    
+    // TODO: ↓ @Mai / GPAを求める
+    printf("Your GPA is 64.75 and therefore your rank is 3\n\n");
 }
 
 
 void ListAllCourses() {
     
-    // TODO: List all available courses.
     // If the user entered ‘6’, the program will printthe list of all available courses in the college in the following format and then printthemenu.
+    
+    printf("List all courses\n\n");
+//    
 //    printf("The following courses are offered in CICCC:\n");
 //    printf("1)MADP101: Objective-C\n");
 //    printf("2)MADP102: Object-Oriented Programming\n");
@@ -236,16 +458,22 @@ void ListAllCourses() {
 //    printf("7)MADP401: Android Programming\n");
 //    printf("8)MADP402: iOS Applications\n\n");
     
-    for(int i = 0;i < 4;i++){
-        printf("%s\n", students[i].course);
+    readFile(FILE_COURSES);
+    
+    int count = 3; // TODO: Change to a dynamic number later
+    
+    for(int i = 0; i < count; i++){
+        printf("%d)%s: %s\n", i + 1, course[i].courseID, course[i].name);
     }
+    printf("\n");
 }
 
 
 void ListAllStudents() {
     
-    // TODO: List all students.
     // If the user enters ‘7’, the program will printthe list of all students in the college in the following format and then printthe menu.
+    
+    printf("List all students\n\n");
     
 //    printf("There are 4 students in CICCC as following:\n");
 //    printf("1)Peter Brown: 7813007\n");
@@ -253,18 +481,17 @@ void ListAllStudents() {
 //    printf("3)Cristina Li: 8012333\n");
 //    printf("4)Adams Wang: 7812999\n\n");
     
+    readFile(FILE_STUDENTS);
     
-    for(int i = 0; i < 8; i++){
-        printf("First name:%s\n", students[i].firstName);
-        printf("Last name:%s\n", students[i].lastName);
-        printf("Student ID:%s\n", students[i].studentID);
-        printf("Gender:%c\n", students[i].gender);
-        printf("------------------\n");
+    int count = 3; // TODO: Change to a dynamic number later
+    
+    for(int i = 0; i < count; i++){
+        printf("%d)%s: %s\n", i + 1, students[i].name, students[i].studentID);
     }
 }
 
 
-void myLogout() {
+void myLogout() { // MEMO: ←logout()は予約語のようなので、代わりにmyLogoutにした。
     
     // TODO: Call login function
     
