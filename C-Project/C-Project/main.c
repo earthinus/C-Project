@@ -15,7 +15,7 @@ void readFile(char *filename);
 char** splitKeyValue(char* readline);
 void storeStudent(int studentIndex, char** result);
 void storeCourse(int courseIndex, char** result);
-void myLogin();
+int myLogin();
 void operator(char* loginUser);
 void printMenu();
 void printEnrolment();
@@ -51,10 +51,9 @@ struct course {
 
 int main(int argc, const char * argv[]) {
     
-    //myLogin();
-    
     char *loginUser = "7813007"; // TODO: ←後で動的にする（myLogin()でreturnする）
     
+    myLogin();
     operator(loginUser);
     
     return 0;
@@ -240,31 +239,57 @@ void storeCourse(int courseIndex, char** result) {
 
 /* Login Function */
 
-void login() {
+int myLogin(int loginUserName) {
     
-    char* userInputName;
-    char* userInputPassword;
+    // read file
+    readFile(FILE_ACCOUNTS);
+    
+    int count = 3; // TODO: Change to a dynamic number later
+    bool IDpassMatch = true;
+    // ↑falseにしとくといきなりwhileループする
+    loginUserName = -1;
+    // ↑結局同じ事なのでどっちかひとつでOK
+    
+    // allocate
+    char* userInputID = malloc(sizeof(char));
+    char* userInputPassword = malloc(sizeof(char));;
     
     printf("************************************************************\n");
     printf("Please enter your account to login\n");
     printf("************************************************************\n");
-    scanf("Username:%s", userInputName);
-    scanf("Password:%s", userInputPassword);
     
-    // TODO: ↓ @Mai / Compare with struct student by for loop
     
-//    if(userInputName == students[i].firstName && userInputPassword == students[i].passWord) {
-//        printf("************************************************************");
-//        printf("Welcome to Cornerstone International College of Canada.");
-//        printf("************************************************************");
-//        
-//        operator();
-//        
-//    } else {
-//        printf("************************************************************");
-//        printf("Your account does not exist. Please try again!");
-//        printf("************************************************************");
-//    }
+    
+    while(IDpassMatch){
+        printf("ID      : ");
+        scanf("%s", userInputID);
+        printf("Password: ");
+        scanf("%s", userInputPassword);
+        
+        
+        for(int i = 0; i < count; i++){
+            printf("%d)%s: %s\n", i + 1, students[i].name, students[i].studentID);
+            // make variable and define
+            if(userInputID == students[i].studentID && userInputPassword == students[i].passWord){
+                IDpassMatch = true;
+                loginUserName = i;
+            }
+        }
+    
+        printf("\n");
+
+        if(IDpassMatch == true) {
+            printf("************************************************************");
+            printf("Welcome to Cornerstone International College of Canada.");
+            printf("************************************************************");
+        } else {
+            printf("************************************************************");
+            printf("Your account does not exist. Please try again!");
+            printf("************************************************************");
+        }
+    }
+    
+    return loginUserName;
 }
 
 
@@ -380,7 +405,10 @@ void printTranscript() {
 
 void printGPA(char *loginUser) {
     
+    
     // TODO: ↓ @Mai / GPAを求める
+    // make variablle(ex. gpa[],javaScore[],androidScore[]...)
+    // devide by number of subjects(just type 4)
     printf("Hi Mr. Peter Brown,\n");
     printf("Your GPA is 64.75\n\n");
 }
