@@ -1,8 +1,8 @@
-studentID:”7813007”
-password:”password1”
+studentID:7813007
+password:password1
 
-studentID:”7813008”
-password:”password2”
+studentID:7813008
+password:password2
 
-studentID:”7813009”
-password:”password3”
+studentID:7813009
+password:password3
