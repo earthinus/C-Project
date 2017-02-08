@@ -25,7 +25,6 @@ void printGPA();
 void printRanking();
 void ListAllCourses();
 void ListAllStudents();
-void myLogout();
 
 #define FILE_STUDENTS "Students.txt"
 #define FILE_STUDENTSCOURSES "StudentsCourses.txt"
@@ -47,7 +46,7 @@ struct student {
 struct course {
     char* courseID;
     char* name;
-} course[3];
+} courses[3];
 
 int main(int argc, const char * argv[]) {
     
@@ -167,7 +166,7 @@ void storeStudent(int studentIndex, char** result) {
     
     char *studentID = "studentID",
     *name = "name",
-    *passWord = "passWord",
+    *passWord = "password",
     *gender = "gender",
     *mark = "mark",
     *grade = "grade",
@@ -178,39 +177,39 @@ void storeStudent(int studentIndex, char** result) {
     // ↓MEMO: stringの場合はswich文が使えないようなので、ifで対応
     
     // studentID
-    if (strncmp(*result, studentID, sizeof(*studentID)) == 0) {
+    if (strncmp(*result, studentID, strlen(studentID)) == 0) {
         students[studentIndex].studentID = *(result + 1);
         
     // Name
-    } else if(strncmp(*result, name, sizeof(*name)) == 0) {
+    } else if(strncmp(*result, name, strlen(name)) == 0) {
         students[studentIndex].name = *(result + 1);
         
     // Password
-    } else if(strncmp(*result, passWord, sizeof(*passWord)) == 0) {
+    } else if(strncmp(*result, passWord, strlen(passWord)) == 0) {
         students[studentIndex].passWord = *(result + 1);
         
     // Gender
-    } else if(strncmp(*result, gender, sizeof(*gender)) == 0) {
+    } else if(strncmp(*result, gender, strlen(gender)) == 0) {
         students[studentIndex].gender = *(result + 1);
         
     // Mark
-    } else if(strncmp(*result, mark, sizeof(*mark)) == 0) {
+    } else if(strncmp(*result, mark, strlen(mark)) == 0) {
         students[studentIndex].mark = *(result + 1);
         
     // Grade
-    } else if(strncmp(*result, grade, sizeof(*grade)) == 0) {
+    } else if(strncmp(*result, grade, strlen(grade)) == 0) {
         students[studentIndex].grade = *(result + 1);
        
     // Address
-    } else if(strncmp(*result, address, sizeof(*address)) == 0) {
+    } else if(strncmp(*result, address, strlen(address)) == 0) {
         students[studentIndex].address = *(result + 1);
         
     // Admission year
-    } else if(strncmp(*result, admission_year, sizeof(*admission_year)) == 0) {
+    } else if(strncmp(*result, admission_year, strlen(admission_year)) == 0) {
         students[studentIndex].admission_year = *(result + 1);
         
     // Courses
-    } else if(strncmp(*result, courses, sizeof(*courses)) == 0) {
+    } else if(strncmp(*result, courses, strlen(courses)) == 0) {
         students[studentIndex].courses = *(result + 1);
     }
 }
@@ -223,11 +222,11 @@ void storeCourse(int courseIndex, char** result) {
     
     // courseID
     if (strncmp(*result, courseID, sizeof(*courseID)) == 0) {
-        course[courseIndex].courseID = *(result + 1);
+        courses[courseIndex].courseID = *(result + 1);
         
     // Name
     } else if(strncmp(*result, name, sizeof(*name)) == 0) {
-        course[courseIndex].name = *(result + 1);
+        courses[courseIndex].name = *(result + 1);
     }
 }
 
@@ -307,7 +306,7 @@ void operator(int loginUserIndex) {
     
     int input = 0;
     
-    while (input != 9) {
+    while (input != 8 && input != 9) {
         
         printMenu();
         
@@ -319,7 +318,7 @@ void operator(int loginUserIndex) {
                 break;
                 
             case 2:
-                printCourses();
+                printCourses(loginUserIndex);
                 break;
                 
             case 3:
@@ -343,7 +342,8 @@ void operator(int loginUserIndex) {
                 break;
                 
             case 8:
-                myLogout();
+                printf("Logout! Thank you.\n\n");
+                myLogin();
                 break;
                 
             case 9:
@@ -388,15 +388,43 @@ void printEnrolment() {
 }
 
 
-void printCourses() {
+void printCourses(int loginUserIndex) {
+    // Prints all the courses the student has taken in the following format. And then printsthe above main menu again.
     
-    // TODO: Print user's courses.
-    printf("Hi Mr. Peter Brown,\n");
+    readFile(FILE_STUDENTS);
+    readFile(FILE_COURSES);
+    
+    char *gender;
+    if (strncmp(students[loginUserIndex].gender, "male", 4) == 0) {
+        gender = "Mr.";
+    } else if (strncmp(students[loginUserIndex].gender, "female", 6) == 0) {
+        gender = "Ms.";
+    }
+    
+    printf("Hi %s %s,\n", gender, students[loginUserIndex].name);
     printf("You have taken the following courses:\n");
-    printf("1)MADP101: Objective-C\n");
-    printf("2)MADP202:ProjectManagement\n");
-    printf("3)MADP301:Java Programming\n");
-    printf("4)MADP401:Android Programming\n\n");
+    
+    int no = 1,
+    cousesCount = 4; // TODO:あとで動的にする
+    char comma[] = ",",
+    *token = strtok(students[loginUserIndex].courses, comma);
+    
+    while(token != NULL) {
+        
+        for (int i = 0; i < cousesCount; i++) {
+            if (strncmp(token, courses[i].courseID, strlen(token)) == 0) {
+                printf("%d)%s: %s\n", no, token, courses[i].name);
+            }
+        }
+        
+        token = strtok(NULL, comma);  // for after second time loop
+        no++;
+    }
+    
+//    printf("1)MADP101: Objective-C\n");
+//    printf("2)MADP202: ProjectManagement\n");
+//    printf("3)MADP301: Java Programming\n");
+//    printf("4)MADP401: Android Programming\n\n");
 }
 
 
@@ -463,7 +491,7 @@ void ListAllCourses() {
     int count = 3; // TODO: Change to a dynamic number later
     
     for(int i = 0; i < count; i++){
-        printf("%d)%s: %s\n", i + 1, course[i].courseID, course[i].name);
+        printf("%d)%s: %s\n", i + 1, courses[i].courseID, courses[i].name);
     }
     printf("\n");
 }
@@ -488,13 +516,4 @@ void ListAllStudents() {
     for(int i = 0; i < count; i++){
         printf("%d)%s: %s\n", i + 1, students[i].name, students[i].studentID);
     }
-}
-
-
-void myLogout() { // MEMO: ←logout()は予約語のようなので、代わりにmyLogoutにした。
-    
-    // TODO: Call login function
-    
-    // If the user entered‘8’, the program will print the login menu and let the user login again with the same or different account.
-    printf("Logout! Thank you.\n\n");
 }

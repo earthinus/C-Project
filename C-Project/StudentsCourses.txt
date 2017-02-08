@@ -9,7 +9,3 @@ mark:60
 studentID:7813009
 courseID:”MADP301
 mark:70
-
-studentID:7813007
-courseID:MADP301
-mark:60
