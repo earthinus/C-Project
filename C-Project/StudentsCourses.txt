@@ -1,17 +1,15 @@
-studentID:“7813007
+studentID:7813007
 courseID:MADP101
 mark:85
 
-<<<<<<< HEAD
-studentID:“7813008”
-courseID:”MADP301”
-mark:”60”
-
-studentID:“7813009”
-courseID:”MADP301”
-mark:”70”
-=======
-studentID:“7813007
+studentID:7813008
 courseID:MADP301
 mark:60
->>>>>>> a7932eabbbca547abf23db0eac6408c8c4b13040
+
+studentID:7813009
+courseID:”MADP301
+mark:70
+
+studentID:7813007
+courseID:MADP301
+mark:60
