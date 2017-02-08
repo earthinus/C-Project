@@ -279,8 +279,8 @@ void myLogin() {
             }
             
             // Check ID & PW that has been matched
-            resultStrncmpID = strncmp(inputID, students[i].studentID, sizeof(maxLengthID));
-            resultStrncmpPW = strncmp(inputPW, students[i].passWord,  sizeof(maxLengthPW));
+            resultStrncmpID = strncmp(inputID, students[i].studentID, sizeof(maxLengthID) + 1);
+            resultStrncmpPW = strncmp(inputPW, students[i].passWord,  sizeof(maxLengthPW) + 1);
 
             // Both matched
             if(resultStrncmpID == 0 && resultStrncmpPW == 0){
@@ -415,6 +415,7 @@ void printTranscript(char *loginUser) {
 
 void printGPA(char *loginUser) {
     
+    readFile(FILE_STUDENTS);
     readFile(FILE_STUDENTSCOURSES);
     // make variablle(ex. gpa)
     // devide by number of subjects
