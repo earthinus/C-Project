@@ -269,7 +269,7 @@ int myLogin(int loginUserName) {
         
         
         for(int i = 0; i < count; i++){
-            printf("%d)%s: %s\n", i + 1, students[i].name, students[i].studentID);
+            printf("%d)%s: %s\n", i + 1, students[i].passWord, students[i].studentID);
             // make variable and define
             if(userInputID == students[i].studentID && userInputPassword == students[i].passWord){
                 IDpassMatch = true;
@@ -279,17 +279,15 @@ int myLogin(int loginUserName) {
     
         printf("\n");
 
-        if(IDpassMatch == true) {
-            printf("************************************************************\n");
-            printf("Welcome to Cornerstone International College of Canada.\n");
-            printf("************************************************************\n");
-        } else {
             printf("************************************************************\n");
             printf("Your account does not exist. Please try again!\n");
             printf("************************************************************\n");
         }
-    }
-    
+
+        printf("************************************************************\n");
+        printf("Welcome to Cornerstone International College of Canada.\n");
+        printf("************************************************************\n");
+
     return loginUserName;
 }
 
