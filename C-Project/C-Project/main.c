@@ -15,8 +15,8 @@ void readFile(char *filename);
 char** splitKeyValue(char* readline);
 void storeStudent(int studentIndex, char** result);
 void storeCourse(int courseIndex, char** result);
-int myLogin();
-void operator(char* loginUser);
+void myLogin();
+void operator(int loginUser);
 void printMenu();
 void printEnrolment();
 void printCourses();
@@ -51,11 +51,7 @@ struct course {
 
 int main(int argc, const char * argv[]) {
     
-    char *loginUser = "7813007"; // TODO: ←後で動的にする（myLogin()でreturnする）
-    
     myLogin();
-    printMenu();
-    operator(loginUser);
     
     return 0;
 }
@@ -99,7 +95,7 @@ void readFile(char *filename) {
                 if (filename == FILE_STUDENTS || filename == FILE_STUDENTSCOURSES || filename == FILE_STUDENTS || filename == FILE_ACCOUNTS) {
                     
                     // to student
-                    storeStudent(indexGroup, result); // group = グループの順番, result = key & value
+                    storeStudent(indexGroup, result); // group = order of group, result = key & value
                     
                 } else if (filename == FILE_COURSES) {
                     
@@ -111,8 +107,8 @@ void readFile(char *filename) {
                 indexGroup++;
             }
         }
-        fclose(file);
     }
+    fclose(file);
 }
 
 
@@ -215,9 +211,6 @@ void storeStudent(int studentIndex, char** result) {
         
     // Courses
     } else if(strncmp(*result, courses, sizeof(*courses)) == 0) {
-        
-        // TODO: split multiple courses
-        
         students[studentIndex].courses = *(result + 1);
     }
 }
@@ -240,61 +233,79 @@ void storeCourse(int courseIndex, char** result) {
 
 /* Login Function */
 
-int myLogin(int loginUserName) {
+void myLogin() {
     
     // read file
     readFile(FILE_ACCOUNTS);
     
     int count = 3; // TODO: Change to a dynamic number later
-    bool IDpassMatch = true;
 
-    loginUserName = -1;
-    // ↑結局同じ事なのでどっちかひとつでOK
+    int loginUserIndex = -1,
+    resultStrncmpID,
+    resultStrncmpPW;
+    long maxLengthID,
+    maxLengthPW;
     
-    // allocate
-    char* userInputID = malloc(sizeof(char));
-    char* userInputPassword = malloc(sizeof(char));;
+    // Allocate
+    char* inputID = malloc(100 * sizeof(char));
+    char* inputPW = malloc(100 * sizeof(char));
     
     printf("************************************************************\n");
     printf("Please enter your account to login\n");
     printf("************************************************************\n");
     
-    
-    
-    while(IDpassMatch){
+    while(loginUserIndex == -1) {
         printf("ID      : ");
-        scanf("%s", userInputID);
+        scanf("%s", inputID);
         printf("Password: ");
-        scanf("%s", userInputPassword);
+        scanf("%s", inputPW);
         
-        
-        for(int i = 0; i < count; i++){
-            printf("%d)%s: %s\n", i + 1, students[i].passWord, students[i].studentID);
-            // make variable and define
-            if(userInputID == students[i].studentID && userInputPassword == students[i].passWord){
-                IDpassMatch = true;
-                loginUserName = i;
+        for(int i = 0; i < count; i++) {
+            
+            // Define length of ID
+            if (strlen(inputID) < strlen(students[i].studentID)) {
+                maxLengthID = strlen(students[i].studentID);
+                
+            } else {
+                maxLengthID = strlen(inputID);
+            }
+            
+            // Define length of password
+            if (strlen(inputPW) < strlen(students[i].passWord)) {
+                maxLengthPW = strlen(students[i].passWord);
+                
+            } else {
+                maxLengthPW = strlen(inputPW);
+            }
+            
+            // Check ID & PW that has been matched
+            resultStrncmpID = strncmp(inputID, students[i].studentID, sizeof(maxLengthID));
+            resultStrncmpPW = strncmp(inputPW, students[i].passWord,  sizeof(maxLengthPW));
+
+            // Both matched
+            if(resultStrncmpID == 0 && resultStrncmpPW == 0){
+                loginUserIndex = i;
             }
         }
-    
-        printf("\n");
-
-            printf("************************************************************\n");
+        
+        if (loginUserIndex == -1) {
+            printf("\n************************************************************\n");
             printf("Your account does not exist. Please try again!\n");
-            printf("************************************************************\n");
+            printf("************************************************************\n\n");
         }
+    }
 
-        printf("************************************************************\n");
-        printf("Welcome to Cornerstone International College of Canada.\n");
-        printf("************************************************************\n");
+    printf("\n\n************************************************************\n");
+    printf("Welcome to Cornerstone International College of Canada.\n");
+    printf("************************************************************\n");
 
-    return loginUserName;
+    operator(loginUserIndex);
 }
 
 
-void operator(char *loginUser) {
+void operator(int loginUserIndex) {
     
-    int input;
+    int input = 0;
     
     while (input != 9) {
         
@@ -477,7 +488,6 @@ void ListAllStudents() {
     for(int i = 0; i < count; i++){
         printf("%d)%s: %s\n", i + 1, students[i].name, students[i].studentID);
     }
-    printf("\n");
 }
 
 
