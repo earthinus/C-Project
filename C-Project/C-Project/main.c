@@ -415,6 +415,7 @@ void printTranscript(char *loginUser) {
 
 void printGPA(char *loginUser) {
     
+    readFile(FILE_STUDENTSCOURSES);
     // make variablle(ex. gpa)
     // devide by number of subjects
     double gpa;
