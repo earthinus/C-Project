@@ -53,7 +53,7 @@ int main(int argc, const char * argv[]) {
     
     char *loginUser = "7813007"; // TODO: ←後で動的にする（myLogin()でreturnする）
     
-    myLogin();
+    //myLogin();
     printMenu();
     operator(loginUser);
     
@@ -389,7 +389,7 @@ void printCourses() {
 }
 
 
-void printTranscript() {
+void printTranscript(char *loginUser) {
     
     // TODO: Print user's transcript.
     printf("Hi Mr. Peter Brown,\n");
@@ -398,18 +398,26 @@ void printTranscript() {
     printf("2)MADP202: Project Management: 45\n");
     printf("3)MADP301: Java Programming: 64\n");
     printf("4)MADP401: Android Programming: 70\n");
-    printf("YOUR GPA IS: 64.75\n\n");
+    printGPA(loginUser);
 }
 
 
 void printGPA(char *loginUser) {
     
+    // make variablle(ex. gpa)
+    // devide by number of subjects
+    double gpa;
+    int totalMark;
+    int i;
+    for(i = 0;0 < students[i].mark;i++){
+        totalMark += (int)students[i].mark;
+    }
     
-    // TODO: ↓ @Mai / GPAを求める
-    // make variablle(ex. gpa[],javaScore[],androidScore[]...)
-    // devide by number of subjects(just type 4)
+    gpa = (double)totalMark / (double)i;
+    
     printf("Hi Mr. Peter Brown,\n");
-    printf("Your GPA is 64.75\n\n");
+    printf("Your GPA is :");
+    printf("%lf\n\n",gpa);
 }
 
 
@@ -418,16 +426,19 @@ void printRanking(char *loginUser) {
     readFile(FILE_STUDENTS);
     
     int i = 0;
+    int ranking;
     
     // Check the order of the loginUser
     while (strncmp(loginUser, students[i].studentID, sizeof(*students[i].studentID)) == 0) {
-        i++;
+        i++;  // ↑string(array of char)同士を比較したい時にこうやって書く
     }
     
     printf("Hi Mr. %s,\n", students[i].name);
     
     // TODO: ↓ @Mai / GPAを求める
-    printf("Your GPA is 64.75 and therefore your rank is 3\n\n");
+    printGPA(loginUser);
+    printf("and therefore your rank is");
+    printf("%d\n",ranking);
 }
 
 
