@@ -278,7 +278,7 @@ void myLogin() {
                 maxLengthPW = strlen(inputPW);
             }
             
-            // Check ID & PW that has been matched
+            // Check ID & PW that has been matched                  // ↓+1で9文字分確保出来る
             resultStrncmpID = strncmp(inputID, students[i].studentID, sizeof(maxLengthID) + 1);
             resultStrncmpPW = strncmp(inputPW, students[i].passWord,  sizeof(maxLengthPW) + 1);
 
@@ -327,7 +327,7 @@ void operator(int loginUserIndex) {
                 break;
                 
             case 4:
-                printGPA();
+                printGPA(loginUserIndex);
                 break;
                 
             case 5:
@@ -413,24 +413,37 @@ void printTranscript(char *loginUser) {
 }
 
 
-void printGPA(char *loginUser) {
+void printGPA(int loginUserIndex) {
     
     readFile(FILE_STUDENTS);
     readFile(FILE_STUDENTSCOURSES);
-    // make variablle(ex. gpa)
-    // devide by number of subjects
-    double gpa;
-    int totalMark;
-    int i;
-    for(i = 0;0 < students[i].mark;i++){
-        totalMark += (int)students[i].mark;
+
+    double gpa = 0.0;
+    int courseCount = 1;
+    
+    char *s1 = students[loginUserIndex].mark;
+    char s2[] = ",";
+    char *tok;
+
+    //tok = (int)strtok(s1,s2);
+    
+        // ↓s1をs2で区切ったやつをtokに代入
+    tok = strtok(s1,s2);
+    int totalMark = atoi(tok);
+    
+    while(tok != NULL){
+
+        totalMark += atoi(tok);
+        tok = strtok(NULL,s2);
+        courseCount++;
     }
     
-    gpa = (double)totalMark / (double)i;
+    gpa = (double)totalMark / courseCount;
     
-    printf("Hi Mr. Peter Brown,\n");
+    printf("Hi Mr. ");
+    printf("%s\n",students[loginUserIndex].name);
     printf("Your GPA is :");
-    printf("%lf\n\n",gpa);
+    printf("%.2f\n\n",gpa);
 }
 
 
