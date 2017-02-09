@@ -8,10 +8,7 @@ courseID:MADP201
 name:Problem Solving
 
 courseID:MADP202
-name:ProjectManagement
-
-courseID:MADP301
-name:Java Programming
+name:iOS Programming
 
 courseID:MADP302
 name:Web Development

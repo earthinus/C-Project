@@ -50,7 +50,7 @@ struct course {
 } courses[3];
 
 int main(int argc, const char * argv[]) {
-    
+    // TODO: ←後で動的にする（myLogin()でreturnする
     myLogin();
     
     return 0;
@@ -295,9 +295,9 @@ void myLogin() {
                 maxLengthPW = strlen(inputPW);
             }
             
-            // Check ID & PW that has been matched
-            resultStrncmpID = strncmp(inputID, students[i].studentID, sizeof(maxLengthID));
-            resultStrncmpPW = strncmp(inputPW, students[i].passWord,  sizeof(maxLengthPW));
+            // Check ID & PW that has been matched                  // ↓+1で9文字分確保出来る
+            resultStrncmpID = strncmp(inputID, students[i].studentID, sizeof(maxLengthID) + 1);
+            resultStrncmpPW = strncmp(inputPW, students[i].passWord,  sizeof(maxLengthPW) + 1);
 
             // Both matched
             if(resultStrncmpID == 0 && resultStrncmpPW == 0){
@@ -344,7 +344,7 @@ void operator(int loginUserIndex) {
                 break;
                 
             case 4:
-                printGPA();
+                printGPA(loginUserIndex);
                 break;
                 
             case 5:
@@ -455,7 +455,7 @@ void printCourses(int loginUserIndex) {
 }
 
 
-void printTranscript() {
+void printTranscript(char *loginUser) {
     
     // TODO: Print user's transcript.
     printf("Hi Mr. Peter Brown,\n");
@@ -464,18 +464,41 @@ void printTranscript() {
     printf("2)MADP202: Project Management: 45\n");
     printf("3)MADP301: Java Programming: 64\n");
     printf("4)MADP401: Android Programming: 70\n");
-    printf("YOUR GPA IS: 64.75\n\n");
+    printGPA(loginUser);
 }
 
 
-void printGPA(char *loginUser) {
+void printGPA(int loginUserIndex) {
     
+    readFile(FILE_STUDENTS);
+    readFile(FILE_STUDENTSCOURSES);
+
+    double gpa = 0.0;
+    int courseCount = 1;
     
-    // TODO: ↓ @Mai / GPAを求める
-    // make variablle(ex. gpa[],javaScore[],androidScore[]...)
-    // devide by number of subjects(just type 4)
-    printf("Hi Mr. Peter Brown,\n");
-    printf("Your GPA is 64.75\n\n");
+    char *s1 = students[loginUserIndex].mark;
+    char s2[] = ",";
+    char *tok;
+
+    //tok = (int)strtok(s1,s2);
+    
+        // ↓s1をs2で区切ったやつをtokに代入
+    tok = strtok(s1,s2);
+    int totalMark = atoi(tok);
+    
+    while(tok != NULL){
+
+        totalMark += atoi(tok);
+        tok = strtok(NULL,s2);
+        courseCount++;
+    }
+    
+    gpa = (double)totalMark / courseCount;
+    
+    printf("Hi Mr. ");
+    printf("%s\n",students[loginUserIndex].name);
+    printf("Your GPA is :");
+    printf("%.2f\n\n",gpa);
 }
 
 
@@ -484,16 +507,19 @@ void printRanking(char *loginUser) {
     readFile(FILE_STUDENTS);
     
     int i = 0;
+    int ranking;
     
     // Check the order of the loginUser
     while (strncmp(loginUser, students[i].studentID, sizeof(*students[i].studentID)) == 0) {
-        i++;
+        i++;  // ↑string(array of char)同士を比較したい時にこうやって書く
     }
     
     printf("Hi Mr. %s,\n", students[i].name);
     
     // TODO: ↓ @Mai / GPAを求める
-    printf("Your GPA is 64.75 and therefore your rank is 3\n\n");
+    printGPA(loginUser);
+    printf("and therefore your rank is");
+    printf("%d\n",ranking);
 }
 
 

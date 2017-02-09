@@ -10,9 +10,9 @@ studentID:7813008
 name:Joseph Rod
 gender:male
 grade:3
-address:850 West Vancouver, Vancouver
+address:225 South Vancouver, Vancouver
 admission_year:2012
-courses:MADP101
+courses:MADP101,MADP202,MADP301
 
 studentID:7813009
 name:Cristina Li
