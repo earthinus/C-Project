@@ -1,11 +1,23 @@
 courseID:MADP101
 name:Objective-C
 
+courseID:MADP102
+name:Object-Oriented
+
+courseID:MADP201
+name:Problem Solving
+
 courseID:MADP202
 name:ProjectManagement
 
 courseID:MADP301
 name:Java Programming
 
+courseID:MADP302
+name:Web Development
+
 courseID:MADP401
 name:Android Programming
+
+courseID:MADP402
+name:iOS Applications
