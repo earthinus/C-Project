@@ -11,13 +11,14 @@
 #include <string.h>
 #include <assert.h>
 
-void readFile(char *filename);
-char** splitKeyValue(char* readline);
-void storeStudent(int studentIndex, char** result);
-void storeCourse(int courseIndex, char** result);
+void readFile();
+char** splitKeyValue();
+void storeStudent();
+void storeCourse();
 char* getHonorificTitle();
+double getGPA();
 void myLogin();
-void operator(int loginUser);
+void operator();
 void printMenu();
 void printEnrolment();
 void printCourses();
@@ -47,10 +48,11 @@ struct student {
 struct course {
     char* courseID;
     char* name;
-} courses[3];
+} courses[7];
+
 
 int main(int argc, const char * argv[]) {
-    // TODO: ←後で動的にする（myLogin()でreturnする
+    
     myLogin();
     
     return 0;
@@ -127,7 +129,9 @@ char** splitKeyValue(char* readline) { // readline is "studentID:”7813007”\n
     int valueLength = 0;
     int startIndex = keyLength;
     bool hasDoubleQuo = false;
-    while (readline[startIndex] != '\n') {
+    
+    // Count until the end of the line (which means until getting '\n' or '\0')
+    while (readline[startIndex] != '\n' && readline[startIndex] != '\0') {
         valueLength++;
         startIndex++;
         
@@ -173,9 +177,8 @@ void storeStudent(int studentIndex, char** result) {
     *grade = "grade",
     *address = "address",
     *admission_year = "admission_year",
-    *courses = "courses";
-    
-    // ↓MEMO: stringの場合はswich文が使えないようなので、ifで対応
+    *courses = "courses",
+    *courseID = "courseID";
     
     // studentID
     if (strncmp(*result, studentID, strlen(studentID)) == 0) {
@@ -209,8 +212,8 @@ void storeStudent(int studentIndex, char** result) {
     } else if(strncmp(*result, admission_year, strlen(admission_year)) == 0) {
         students[studentIndex].admission_year = *(result + 1);
         
-    // Courses
-    } else if(strncmp(*result, courses, strlen(courses)) == 0) {
+    // Courses or CourseID
+    } else if(strncmp(*result, courses, strlen(courses)) == 0 || strncmp(*result, courseID, strlen(courseID)) == 0) {
         students[studentIndex].courses = *(result + 1);
     }
 }
@@ -248,6 +251,30 @@ char *getHonorificTitle(char* gender) {
     return honorificTitle;
 }
 
+
+double getGPA(int studentIndex) {
+    
+    int courseCount = 1;
+    char *comma = ",";
+    
+    // Split string of student's mark by comma
+    char *token = strtok(students[studentIndex].mark, comma);
+    
+    // Casting from string to int
+    int totalMark = atoi(token);
+    
+    while(token != NULL){
+        
+        totalMark += atoi(token);
+        token = strtok(NULL, comma);
+        courseCount++;
+    }
+    
+    double gpa = (double)totalMark / courseCount;
+    return gpa;
+}
+
+
 /* Login Function */
 
 void myLogin() {
@@ -279,7 +306,7 @@ void myLogin() {
         
         for(int i = 0; i < count; i++) {
             
-            // Define length of ID
+            // Get length of ID
             if (strlen(inputID) < strlen(students[i].studentID)) {
                 maxLengthID = strlen(students[i].studentID);
                 
@@ -287,7 +314,7 @@ void myLogin() {
                 maxLengthID = strlen(inputID);
             }
             
-            // Define length of password
+            // Get length of password
             if (strlen(inputPW) < strlen(students[i].passWord)) {
                 maxLengthPW = strlen(students[i].passWord);
                 
@@ -295,12 +322,12 @@ void myLogin() {
                 maxLengthPW = strlen(inputPW);
             }
             
-            // Check ID & PW that has been matched                  // ↓+1で9文字分確保出来る
-            resultStrncmpID = strncmp(inputID, students[i].studentID, sizeof(maxLengthID) + 1);
-            resultStrncmpPW = strncmp(inputPW, students[i].passWord,  sizeof(maxLengthPW) + 1);
+            // Check ID & PW have been matched
+            resultStrncmpID = strncmp(inputID, students[i].studentID, maxLengthID);
+            resultStrncmpPW = strncmp(inputPW, students[i].passWord,  maxLengthPW);
 
             // Both matched
-            if(resultStrncmpID == 0 && resultStrncmpPW == 0){
+            if (resultStrncmpID == 0 && resultStrncmpPW == 0) {
                 loginUserIndex = i;
             }
         }
@@ -340,7 +367,7 @@ void operator(int loginUserIndex) {
                 break;
                 
             case 3:
-                printTranscript();
+                printTranscript(loginUserIndex);
                 break;
                 
             case 4:
@@ -398,10 +425,10 @@ void printEnrolment(int loginUserIndex) {
     
     readFile(FILE_STUDENTS);
     readFile(FILE_COURSES);
-    
+
     // Get "Mr" or "Ms"
     char *honorificTitle = getHonorificTitle(students[loginUserIndex].gender);
-    
+
     // Count user's courses
     int coursesCount;
     char* token = strtok(students[loginUserIndex].courses, ",");
@@ -413,7 +440,7 @@ void printEnrolment(int loginUserIndex) {
     printf("\nDear Sir/Madam,\n\n");
     printf("Hi %s %s,\n", honorificTitle, students[loginUserIndex].name);
     printf("This is to certify that %s %s with student id %s is a student at grade %s at CICCC. ", honorificTitle, students[loginUserIndex].name, students[loginUserIndex].studentID, students[loginUserIndex].grade);
-    printf("He/She was admitted to our college in 2011 and has taken %d course(s). ", coursesCount);
+    printf("He/She was admitted to our college in %s and has taken %d course(s). ", students[loginUserIndex].admission_year, coursesCount);
     printf("Currently he/she resides at %s.\n\n", students[loginUserIndex].address);
     printf("If you have any question, please don’t hesitate to contact us.");
     printf("\n\nThanks,\nWilliams,\n");
@@ -432,7 +459,7 @@ void printCourses(int loginUserIndex) {
     printf("You have taken the following courses:\n");
     
     int no = 1,
-    cousesCount = 4; // TODO:あとで動的にする
+    cousesCount = 7; // TODO:あとで動的にする
     char comma[] = ",",
     *token = strtok(students[loginUserIndex].courses, comma);
     
@@ -455,16 +482,75 @@ void printCourses(int loginUserIndex) {
 }
 
 
-void printTranscript(char *loginUser) {
+void printTranscript(int loginUserIndex) {
     
-    // TODO: Print user's transcript.
-    printf("Hi Mr. Peter Brown,\n");
+    readFile(FILE_STUDENTS);
+    readFile(FILE_STUDENTSCOURSES);
+    readFile(FILE_COURSES);
+    
+    // Get "Mr" or "Ms"
+    char *honorificTitle = getHonorificTitle(students[loginUserIndex].gender);
+    
+    printf("Hi %s %s,\n", honorificTitle, students[loginUserIndex].name);
     printf("Here is your transcript:\n");
-    printf("1)MADP101: Objective-C: 80\n");
-    printf("2)MADP202: Project Management: 45\n");
-    printf("3)MADP301: Java Programming: 64\n");
-    printf("4)MADP401: Android Programming: 70\n");
-    printGPA(loginUser);
+    
+    // Count user's courses
+    int i = 0,
+        courseCount = 1;
+    char *comma = ",",
+         *tokenCourse = students[loginUserIndex].courses,
+         *tokenMark   = students[loginUserIndex].mark,
+         **strCourses    = (char**) malloc(10 * sizeof(char)),
+         **strCourseName = (char**) malloc(10 * sizeof(char)),
+         **strMarks      = (char**) malloc(10 * sizeof(char));
+    
+    // Get courseID
+    while ((tokenCourse = strtok(tokenCourse, comma)) != NULL) {
+        strCourses[i] = tokenCourse;
+        printf("strCourses[%d] = %s\n", i, strCourses[i]);
+        tokenCourse = NULL;
+        courseCount++;
+        i++;
+    }
+    
+    printf("\n\n");
+    
+    // Get course names
+    // strCourses[?]と coursers[?].cousesIDが同じだったら coursers[?].nameを代入する
+//    for (int j = 0; j < courseCount; j++) {
+//        
+//        for (int k = 0; k < 7; k++) {
+//            
+//            // MADP101 = MADP101
+//            if (strtok(strCourses[j], courses[k].courseID) == 0) {
+//                //strCourseName[j] = courses[k].name;
+//                printf("courses[%d].name = %s\n", k, courses[k].name);
+//                printf("strCourseName[%d] = %s\n", j, strCourseName[j]);
+//                break;
+//            }
+//        }
+//    }
+    
+    // Get marks
+    i = 0;
+    while ((tokenMark = strtok(tokenMark, comma)) != NULL) {
+        printf("tokenMark = %s\n", tokenMark);
+        strMarks[i] = tokenMark;
+        tokenMark = NULL;
+        i++;
+    }
+    
+    for (int j = 0; j < i; j++) {
+        printf("%d)%s: %s: %s\n", j + 1, strCourses[j]);
+        printf("", strCourseName[j], strMarks[j]);
+    }
+    
+//    printf("1)MADP101: Objective-C: 80\n");
+//    printf("2)MADP202: Project Management: 45\n");
+//    printf("3)MADP301: Java Programming: 64\n");
+//    printf("4)MADP401: Android Programming: 70\n");
+    
+    printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
 }
 
 
@@ -472,33 +558,9 @@ void printGPA(int loginUserIndex) {
     
     readFile(FILE_STUDENTS);
     readFile(FILE_STUDENTSCOURSES);
-
-    double gpa = 0.0;
-    int courseCount = 1;
     
-    char *s1 = students[loginUserIndex].mark;
-    char s2[] = ",";
-    char *tok;
-
-    //tok = (int)strtok(s1,s2);
-    
-        // ↓s1をs2で区切ったやつをtokに代入
-    tok = strtok(s1,s2);
-    int totalMark = atoi(tok);
-    
-    while(tok != NULL){
-
-        totalMark += atoi(tok);
-        tok = strtok(NULL,s2);
-        courseCount++;
-    }
-    
-    gpa = (double)totalMark / courseCount;
-    
-    printf("Hi Mr. ");
-    printf("%s\n",students[loginUserIndex].name);
-    printf("Your GPA is :");
-    printf("%.2f\n\n",gpa);
+    printf("Hi Mr. %s\n",students[loginUserIndex].name);
+    printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
 }
 
 
@@ -517,7 +579,7 @@ void printRanking(char *loginUser) {
     printf("Hi Mr. %s,\n", students[i].name);
     
     // TODO: ↓ @Mai / GPAを求める
-    printGPA(loginUser);
+    //printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
     printf("and therefore your rank is");
     printf("%d\n",ranking);
 }
