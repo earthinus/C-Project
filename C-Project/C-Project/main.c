@@ -15,6 +15,7 @@ void readFile(char *filename);
 char** splitKeyValue(char* readline);
 void storeStudent(int studentIndex, char** result);
 void storeCourse(int courseIndex, char** result);
+char* getHonorificTitle();
 void myLogin();
 void operator(int loginUser);
 void printMenu();
@@ -77,7 +78,7 @@ void readFile(char *filename) {
                 count++;
             }
         }
-        printf("count = %d\n\n", count); // TODO: 後で消す
+        //printf("count = %d\n\n", count); // TODO: 後で消す
         
         // Allocate
         result = (char**) malloc(2 * sizeof(char)); // 2 : to store key and value
@@ -230,6 +231,23 @@ void storeCourse(int courseIndex, char** result) {
     }
 }
 
+char *getHonorificTitle(char* gender) {
+    
+    char *honorificTitle,
+    *male   = "male",
+    *female = "female";
+    
+    if (strcmp(gender, male) == 0) {
+        honorificTitle = malloc(strlen(male) * sizeof(char));
+        honorificTitle = "Mr.";
+        
+    } else if (strcmp(gender, female) == 0) {
+        honorificTitle = malloc(strlen(female) * sizeof(char));
+        honorificTitle = "Ms.";
+    }
+    return honorificTitle;
+}
+
 /* Login Function */
 
 void myLogin() {
@@ -314,7 +332,7 @@ void operator(int loginUserIndex) {
         
         switch (input) {
             case 1:
-                printEnrolment();
+                printEnrolment(loginUserIndex);
                 break;
                 
             case 2:
@@ -376,15 +394,29 @@ void printMenu() {
 }
 
 
-void printEnrolment() {
+void printEnrolment(int loginUserIndex) {
     
-    // TODO: Print user's enrolment.
-    printf("Dear Sir/Madam,\n\n");
-    printf("This is to certify that Mr. Peter Brown with student id7813007 is a student at grade 1 at CICCC. ");
-    printf("He was admitted to our college in 2011 and has taken 1 course(s). ");
-    printf("Currently he resides at 850 West Vancouver, Vancouver.\n\n");
+    readFile(FILE_STUDENTS);
+    readFile(FILE_COURSES);
+    
+    // Get "Mr" or "Ms"
+    char *honorificTitle = getHonorificTitle(students[loginUserIndex].gender);
+    
+    // Count user's courses
+    int coursesCount;
+    char* token = strtok(students[loginUserIndex].courses, ",");
+    while (token != NULL) {
+        coursesCount++;
+        token = strtok(NULL, ",");
+    }
+    
+    printf("\nDear Sir/Madam,\n\n");
+    printf("Hi %s %s,\n", honorificTitle, students[loginUserIndex].name);
+    printf("This is to certify that %s %s with student id %s is a student at grade %s at CICCC. ", honorificTitle, students[loginUserIndex].name, students[loginUserIndex].studentID, students[loginUserIndex].grade);
+    printf("He/She was admitted to our college in 2011 and has taken %d course(s). ", coursesCount);
+    printf("Currently he/she resides at %s.\n\n", students[loginUserIndex].address);
     printf("If you have any question, please don’t hesitate to contact us.");
-    printf("\n\nThanks,\nWilliams,\n\n");
+    printf("\n\nThanks,\nWilliams,\n");
 }
 
 
@@ -394,14 +426,9 @@ void printCourses(int loginUserIndex) {
     readFile(FILE_STUDENTS);
     readFile(FILE_COURSES);
     
-    char *gender;
-    if (strncmp(students[loginUserIndex].gender, "male", 4) == 0) {
-        gender = "Mr.";
-    } else if (strncmp(students[loginUserIndex].gender, "female", 6) == 0) {
-        gender = "Ms.";
-    }
+    char *honorificTitle = getHonorificTitle(students[loginUserIndex].gender);
     
-    printf("Hi %s %s,\n", gender, students[loginUserIndex].name);
+    printf("Hi %s %s,\n", honorificTitle, students[loginUserIndex].name);
     printf("You have taken the following courses:\n");
     
     int no = 1,
