@@ -3,7 +3,7 @@ name:Peter Brown
 gender:male
 grade:2
 address:850 West Hastings, Vancouver
-admission_year:2011
+admission_year:2012
 courses:MADP101,MADP202,MADP301,MADP401
 
 studentID:7813008
@@ -16,8 +16,8 @@ courses:MADP101,MADP202,MADP301
 
 studentID:7813009
 name:Cristina Li
-gender:male
-grade:3
-address:338 East Vancouver, Vancouver
+gender:female
+grade:4
+address:850 East Vancouver, Vancouver
 admission_year:2013
-courses:MADP101,MADP301,MADP401
+courses:MADP301,MADP202
