@@ -407,7 +407,7 @@ void operator(int loginUserIndex) {
 
 void printMenu() {
     
-    printf("\n\n************************************************************\n");
+    printf("\n************************************************************\n");
     printf("Select from the options:\n");
     printf("************************************************************\n");
     printf("-[1] Print myenrolment certificate\n");
@@ -488,50 +488,98 @@ void printTranscript(int loginUserIndex) {
     // Get "Mr" or "Ms"
     char *honorificTitle = getHonorificTitle(students[loginUserIndex].gender);
     
-    printf("Hi %s %s,\n", honorificTitle, students[loginUserIndex].name);
+    
+    int cousesCount = 1;
+    char *comma = ",";
+    char *strCouses = (char*) malloc(strlen(students[loginUserIndex].courses) + 1);
+    if (strCouses == NULL) {
+        return;
+    }
+    char *strMarks = (char*) malloc(strlen(students[loginUserIndex].mark) + 1);
+    if (strMarks == NULL) {
+        return;
+    }
+    
+    // Copy couseID before split to keep the original data
+    strcpy(strCouses, students[loginUserIndex].courses);
+    strcpy(strMarks,  students[loginUserIndex].mark);
+    
+    // Count the number of couseID to allocate
+    for(int m = 0; m < strlen(strCouses); m++) {
+        if(strCouses[m] == *comma) {
+            cousesCount++;
+        }
+    }
+    
+    // Split copied couseID by comma
+    char *token = strtok(strCouses, comma);
+    
+    char **arrCourseIDs,
+    **arrCourseNames,
+    **arrMarks;
+    
+    // Allocate
+    arrCourseIDs = (char**) malloc(cousesCount * sizeof(char*));
+    arrCourseNames = (char**) malloc(cousesCount * sizeof(char*));
+    arrMarks = (char**) malloc(cousesCount * sizeof(char*));
+    if (arrCourseIDs == NULL) {
+        return;
+    }
+    if (arrCourseNames == NULL) {
+        return;
+    }
+    if (arrMarks == NULL) {
+        return;
+    }
+    
+    // Define arrays of courseID and couseName
+    int i = 0;
+    while(token != NULL) {
+        
+        arrCourseIDs[i] = token;
+        
+        for (int j = 0; j < 7; j++) {
+            
+            // if courseID of token matches with courseID, get the name of the course.
+            if (strncmp(token, courses[j].courseID, strlen(token)) == 0) {
+                arrCourseNames[i] = courses[j].name;
+                break;
+            }
+        }
+        
+        token = strtok(NULL, comma);  // for after second time loop
+        i++;
+    }
+    
+    // Define arrays of mark
+    char *token2 = strtok(strMarks, comma);
+    int k = 0;
+    while(token2 != NULL) {
+        
+        arrMarks[k] = token2;
+        token2 = strtok(NULL, comma);  // for after second time loop
+        k++;
+    }
+    
+    // Print
+    printf("\nHi %s %s,\n", honorificTitle, students[loginUserIndex].name);
     printf("Here is your transcript:\n");
     
-    // Count user's courses
-    int i = 0,
-        courseCount = 1;
-    char *comma = ",",
-         *tokenCourse = students[loginUserIndex].courses,
-         *tokenMark   = students[loginUserIndex].mark,
-         **strCourses    = (char**) malloc(10 * sizeof(char)),
-         **strCourseName = (char**) malloc(10 * sizeof(char)),
-         **strMarks      = (char**) malloc(10 * sizeof(char));
-    
-    // Get courseID
-    while ((tokenCourse = strtok(tokenCourse, comma)) != NULL) {
-        strCourses[i] = tokenCourse;
-        printf("strCourses[%d] = %s\n", i, strCourses[i]);
-        tokenCourse = NULL;
-        courseCount++;
-        i++;
+    for (int no = 0; no < cousesCount; no++) {
+        printf("%d)%s: %s: %s\n", no + 1, arrCourseIDs[no], arrCourseNames[no], arrMarks[no]);
     }
     
-    printf("\n\n");
-    
-    // Get marks
-    i = 0;
-    while ((tokenMark = strtok(tokenMark, comma)) != NULL) {
-        printf("tokenMark = %s\n", tokenMark);
-        strMarks[i] = tokenMark;
-        tokenMark = NULL;
-        i++;
-    }
-    
-    for (int j = 0; j < i; j++) {
-        printf("%d)%s: %s: %s\n", j + 1, strCourses[j]);
-        printf("", strCourseName[j], strMarks[j]);
-    }
+    printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
     
 //    printf("1)MADP101: Objective-C: 80\n");
 //    printf("2)MADP202: Project Management: 45\n");
 //    printf("3)MADP301: Java Programming: 64\n");
 //    printf("4)MADP401: Android Programming: 70\n");
     
-    printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
+    free(strCouses);
+    free(arrCourseIDs);
+    free(arrCourseNames);
+    free(arrMarks);
 }
 
 
@@ -587,7 +635,7 @@ void ListAllCourses() {
     
     readFile(FILE_COURSES);
     
-    int count = 3; // TODO: Change to a dynamic number later
+    int count = 7; // TODO: Change to a dynamic number later
     
     for(int i = 0; i < count; i++){
         printf("%d)%s: %s\n", i + 1, courses[i].courseID, courses[i].name);
