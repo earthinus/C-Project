@@ -476,11 +476,6 @@ void printCourses(int loginUserIndex) {
         token = strtok(NULL, comma);  // for after second time loop
         no++;
     }
-    
-//    printf("1)MADP101: Objective-C\n");
-//    printf("2)MADP202: ProjectManagement\n");
-//    printf("3)MADP301: Java Programming\n");
-//    printf("4)MADP401: Android Programming\n\n");
 }
 
 
@@ -516,22 +511,6 @@ void printTranscript(int loginUserIndex) {
     }
     
     printf("\n\n");
-    
-    // Get course names
-    // strCourses[?]と coursers[?].cousesIDが同じだったら coursers[?].nameを代入する
-//    for (int j = 0; j < courseCount; j++) {
-//        
-//        for (int k = 0; k < 7; k++) {
-//            
-//            // MADP101 = MADP101
-//            if (strtok(strCourses[j], courses[k].courseID) == 0) {
-//                //strCourseName[j] = courses[k].name;
-//                printf("courses[%d].name = %s\n", k, courses[k].name);
-//                printf("strCourseName[%d] = %s\n", j, strCourseName[j]);
-//                break;
-//            }
-//        }
-//    }
     
     // Get marks
     i = 0;
@@ -576,20 +555,6 @@ void printRanking(int loginUserIndex) {
     double tmp;
     double number[3] = {getGPA(0),getGPA(1),getGPA(2)};
     
-    
-//    //全員分のGPA取得
-//    double biggest = getGPA(0);
-//    //全員分のGPAを比較して大きい方を生き残らせる
-//    if(getGPA(0) < getGPA(1)){
-//        biggest = getGPA(1);
-//        printf("%.2f\n",biggest);
-//    }
-//    
-//    if(biggest < getGPA(2)){
-//        biggest = getGPA(2);
-//        printf("%.2f\n",biggest);
-//    }
-    
     for (i = 0; i < 3;++i) {
         for (j = i + 1;j < 3; ++j) {
             if (number[i] < number[j]) {
@@ -619,16 +584,6 @@ void ListAllCourses() {
     // If the user entered ‘6’, the program will printthe list of all available courses in the college in the following format and then printthemenu.
     
     printf("List all courses\n\n");
-//    
-//    printf("The following courses are offered in CICCC:\n");
-//    printf("1)MADP101: Objective-C\n");
-//    printf("2)MADP102: Object-Oriented Programming\n");
-//    printf("3)MADP201: Problem Solving\n");
-//    printf("4)MADP202: Project Management\n");
-//    printf("5)MADP301: Java Programming\n");
-//    printf("6)MADP302: Web Development\n");
-//    printf("7)MADP401: Android Programming\n");
-//    printf("8)MADP402: iOS Applications\n\n");
     
     readFile(FILE_COURSES);
     
@@ -646,12 +601,6 @@ void ListAllStudents() {
     // If the user enters ‘7’, the program will printthe list of all students in the college in the following format and then printthe menu.
     
     printf("List all students\n\n");
-    
-//    printf("There are 4 students in CICCC as following:\n");
-//    printf("1)Peter Brown: 7813007\n");
-//    printf("2)Joseph Rod: 812345\n");
-//    printf("3)Cristina Li: 8012333\n");
-//    printf("4)Adams Wang: 7812999\n\n");
     
     readFile(FILE_STUDENTS);
     
