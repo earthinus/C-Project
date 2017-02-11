@@ -254,14 +254,16 @@ char *getHonorificTitle(char* gender) {
 
 double getGPA(int studentIndex) {
     
-    int courseCount = 1;
+    int courseCount = 0;
     char *comma = ",";
+    char *copyMark = (char*)malloc(strlen(students[studentIndex].mark) + 1);
+    strcpy(copyMark,students[studentIndex].mark);
+    
     
     // Split string of student's mark by comma
-    char *token = strtok(students[studentIndex].mark, comma);
+    char *token = strtok(copyMark, comma);
     
-    // Casting from string to int
-    int totalMark = atoi(token);
+    int totalMark = 0;
     
     while(token != NULL){
         
@@ -375,7 +377,7 @@ void operator(int loginUserIndex) {
                 break;
                 
             case 5:
-                printRanking();
+                printRanking(loginUserIndex);
                 break;
                 
             case 6:
@@ -564,24 +566,51 @@ void printGPA(int loginUserIndex) {
 }
 
 
-void printRanking(char *loginUser) {
+void printRanking(int loginUserIndex) {
     
     readFile(FILE_STUDENTS);
+    readFile(FILE_STUDENTSCOURSES);
     
-    int i = 0;
-    int ranking;
+    int i, j;
+    int rank = 0;
+    double tmp;
+    double number[3] = {getGPA(0),getGPA(1),getGPA(2)};
     
-    // Check the order of the loginUser
-    while (strncmp(loginUser, students[i].studentID, sizeof(*students[i].studentID)) == 0) {
-        i++;  // ↑string(array of char)同士を比較したい時にこうやって書く
+    
+//    //全員分のGPA取得
+//    double biggest = getGPA(0);
+//    //全員分のGPAを比較して大きい方を生き残らせる
+//    if(getGPA(0) < getGPA(1)){
+//        biggest = getGPA(1);
+//        printf("%.2f\n",biggest);
+//    }
+//    
+//    if(biggest < getGPA(2)){
+//        biggest = getGPA(2);
+//        printf("%.2f\n",biggest);
+//    }
+    
+    for (i = 0; i < 3;++i) {
+        for (j = i + 1;j < 3; ++j) {
+            if (number[i] < number[j]) {
+                tmp =  number[i];
+                number[i] = number[j];
+                number[j] = tmp;
+            }
+        }
     }
     
-    printf("Hi Mr. %s,\n", students[i].name);
-    
-    // TODO: ↓ @Mai / GPAを求める
-    //printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
-    printf("and therefore your rank is");
-    printf("%d\n",ranking);
+    printf("Hi Mr. %s,\n", students[loginUserIndex].name);
+    printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
+
+    printf("All Students GPA Ranking:\n\n");
+    for (i = 2; i >= 0;--i){
+        printf("%.2f\n\n", number[i]);
+        if(number[i] == getGPA(loginUserIndex)){
+            rank = i + 1;
+        }
+    }
+    printf("and therefore your rank is %d\n\n",rank);
 }
 
 
