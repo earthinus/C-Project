@@ -254,14 +254,16 @@ char *getHonorificTitle(char* gender) {
 
 double getGPA(int studentIndex) {
     
-    int courseCount = 1;
+    int courseCount = 0;
     char *comma = ",";
+    char *copyMark = (char*)malloc(strlen(students[studentIndex].mark) + 1);
+    strcpy(copyMark,students[studentIndex].mark);
+    
     
     // Split string of student's mark by comma
-    char *token = strtok(students[studentIndex].mark, comma);
+    char *token = strtok(copyMark, comma);
     
-    // Casting from string to int
-    int totalMark = atoi(token);
+    int totalMark = 0;
     
     while(token != NULL){
         
@@ -375,7 +377,7 @@ void operator(int loginUserIndex) {
                 break;
                 
             case 5:
-                printRanking();
+                printRanking(loginUserIndex);
                 break;
                 
             case 6:
@@ -474,11 +476,6 @@ void printCourses(int loginUserIndex) {
         token = strtok(NULL, comma);  // for after second time loop
         no++;
     }
-    
-//    printf("1)MADP101: Objective-C\n");
-//    printf("2)MADP202: ProjectManagement\n");
-//    printf("3)MADP301: Java Programming\n");
-//    printf("4)MADP401: Android Programming\n\n");
 }
 
 
@@ -596,24 +593,37 @@ void printGPA(int loginUserIndex) {
 }
 
 
-void printRanking(char *loginUser) {
+void printRanking(int loginUserIndex) {
     
     readFile(FILE_STUDENTS);
+    readFile(FILE_STUDENTSCOURSES);
     
-    int i = 0;
-    int ranking;
+    int i, j;
+    int rank = 0;
+    double tmp;
+    double number[3] = {getGPA(0),getGPA(1),getGPA(2)};
     
-    // Check the order of the loginUser
-    while (strncmp(loginUser, students[i].studentID, sizeof(*students[i].studentID)) == 0) {
-        i++;  // ↑string(array of char)同士を比較したい時にこうやって書く
+    for (i = 0; i < 3;++i) {
+        for (j = i + 1;j < 3; ++j) {
+            if (number[i] < number[j]) {
+                tmp =  number[i];
+                number[i] = number[j];
+                number[j] = tmp;
+            }
+        }
     }
     
-    printf("Hi Mr. %s,\n", students[i].name);
-    
-    // TODO: ↓ @Mai / GPAを求める
-    //printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
-    printf("and therefore your rank is");
-    printf("%d\n",ranking);
+    printf("Hi Mr. %s,\n", students[loginUserIndex].name);
+    printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
+
+    printf("All Students GPA Ranking:\n\n");
+    for (i = 2; i >= 0;--i){
+        printf("%.2f\n\n", number[i]);
+        if(number[i] == getGPA(loginUserIndex)){
+            rank = i + 1;
+        }
+    }
+    printf("and therefore your rank is %d\n\n",rank);
 }
 
 
@@ -622,16 +632,6 @@ void ListAllCourses() {
     // If the user entered ‘6’, the program will printthe list of all available courses in the college in the following format and then printthemenu.
     
     printf("List all courses\n\n");
-//    
-//    printf("The following courses are offered in CICCC:\n");
-//    printf("1)MADP101: Objective-C\n");
-//    printf("2)MADP102: Object-Oriented Programming\n");
-//    printf("3)MADP201: Problem Solving\n");
-//    printf("4)MADP202: Project Management\n");
-//    printf("5)MADP301: Java Programming\n");
-//    printf("6)MADP302: Web Development\n");
-//    printf("7)MADP401: Android Programming\n");
-//    printf("8)MADP402: iOS Applications\n\n");
     
     readFile(FILE_COURSES);
     
@@ -649,12 +649,6 @@ void ListAllStudents() {
     // If the user enters ‘7’, the program will printthe list of all students in the college in the following format and then printthe menu.
     
     printf("List all students\n\n");
-    
-//    printf("There are 4 students in CICCC as following:\n");
-//    printf("1)Peter Brown: 7813007\n");
-//    printf("2)Joseph Rod: 812345\n");
-//    printf("3)Cristina Li: 8012333\n");
-//    printf("4)Adams Wang: 7812999\n\n");
     
     readFile(FILE_STUDENTS);
     
