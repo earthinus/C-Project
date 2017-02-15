@@ -13,8 +13,8 @@
 
 void readFile();
 char** splitKeyValue();
-void storeStudent();
-void storeCourse();
+void setStudent();
+void setCourse();
 char* getHonorificTitle();
 double getGPA();
 void myLogin();
@@ -53,6 +53,12 @@ struct course {
 
 int main(int argc, const char * argv[]) {
     
+    // Read all files
+    readFile(FILE_ACCOUNTS);
+    readFile(FILE_STUDENTS);
+    readFile(FILE_COURSES);
+    readFile(FILE_STUDENTSCOURSES);
+    
     myLogin();
     
     return 0;
@@ -62,8 +68,8 @@ int main(int argc, const char * argv[]) {
 void readFile(char *filename) {
     
     char** result;
-    int indexGroup = 0; // number of groups
-    int count = 1;
+    int indexGroup = 0, // number of groups
+        count = 1;
     
     // Open file
     FILE* file = fopen(filename, "r");
@@ -97,12 +103,12 @@ void readFile(char *filename) {
                 if (filename == FILE_STUDENTS || filename == FILE_STUDENTSCOURSES || filename == FILE_STUDENTS || filename == FILE_ACCOUNTS) {
                     
                     // to student
-                    storeStudent(indexGroup, result); // group = order of group, result = key & value
+                    setStudent(indexGroup, result); // group = order of group, result = key & value
                     
                 } else if (filename == FILE_COURSES) {
                     
-                    // to couse
-                    storeCourse(indexGroup, result);
+                    // to course
+                    setCourse(indexGroup, result);
                 }
                 
             } else {
@@ -110,6 +116,9 @@ void readFile(char *filename) {
             }
         }
     }
+    
+    free(result);
+    
     fclose(file);
 }
 
@@ -167,18 +176,18 @@ char** splitKeyValue(char* readline) { // readline is "studentID:”7813007”\n
 }
 
 
-void storeStudent(int studentIndex, char** result) {
+void setStudent(int studentIndex, char **result) {
     
     char *studentID = "studentID",
-    *name = "name",
-    *passWord = "password",
-    *gender = "gender",
-    *mark = "mark",
-    *grade = "grade",
-    *address = "address",
-    *admission_year = "admission_year",
-    *courses = "courses",
-    *courseID = "courseID";
+         *name = "name",
+         *passWord = "password",
+         *gender = "gender",
+         *mark = "mark",
+         *grade = "grade",
+         *address = "address",
+         *admission_year = "admission_year",
+         *courses = "courses",
+         *courseID = "courseID";
     
     // studentID
     if (strncmp(*result, studentID, strlen(studentID)) == 0) {
@@ -219,26 +228,29 @@ void storeStudent(int studentIndex, char** result) {
 }
 
 
-void storeCourse(int courseIndex, char** result) {
+void setCourse(int courseIndex, char **result) {
     
     char *courseID = "courseID",
-    *name = "name";
+         *name = "name";
     
     // courseID
     if (strncmp(*result, courseID, sizeof(*courseID)) == 0) {
         courses[courseIndex].courseID = *(result + 1);
         
-    // Name
+    // courseName
     } else if(strncmp(*result, name, sizeof(*name)) == 0) {
         courses[courseIndex].name = *(result + 1);
     }
 }
 
-char *getHonorificTitle(char* gender) {
+
+char *getHonorificTitle(char *gender) {
+    
+    // This method is to get Mr. or Ms. from the data of gender.
     
     char *honorificTitle,
-    *male   = "male",
-    *female = "female";
+         *male   = "male",
+         *female = "female";
     
     if (strcmp(gender, male) == 0) {
         honorificTitle = malloc(strlen(male) * sizeof(char));
@@ -248,31 +260,37 @@ char *getHonorificTitle(char* gender) {
         honorificTitle = malloc(strlen(female) * sizeof(char));
         honorificTitle = "Ms.";
     }
+    
     return honorificTitle;
 }
 
 
 double getGPA(int studentIndex) {
     
-    int courseCount = 0;
-    char *comma = ",";
-    char *copyMark = (char*)malloc(strlen(students[studentIndex].mark) + 1);
-    strcpy(copyMark,students[studentIndex].mark);
+    int courseCount = 0,
+        totalMark = 0;
+    char *comma = ",",
+         *copyMark = (char*) malloc(strlen(students[studentIndex].mark) + 1);
     
+    strcpy(copyMark,students[studentIndex].mark);
     
     // Split string of student's mark by comma
     char *token = strtok(copyMark, comma);
     
-    int totalMark = 0;
-    
-    while(token != NULL){
+    while(token != NULL) {
         
+        // Cast the mark from char to int
         totalMark += atoi(token);
+        
         token = strtok(NULL, comma);
+        
         courseCount++;
     }
     
-    double gpa = (double)totalMark / courseCount;
+    double gpa = (double) totalMark / courseCount;
+    
+    free(copyMark);
+    
     return gpa;
 }
 
@@ -281,20 +299,16 @@ double getGPA(int studentIndex) {
 
 void myLogin() {
     
-    // read file
-    readFile(FILE_ACCOUNTS);
-    
-    int count = 3; // TODO: Change to a dynamic number later
-
-    int loginUserIndex = -1,
-    resultStrncmpID,
-    resultStrncmpPW;
+    int count = 3, // TODO: Change to a dynamic number later
+        loginUserIndex = -1,
+        resultStrncmpID,
+        resultStrncmpPW;
     long maxLengthID,
-    maxLengthPW;
+         maxLengthPW;
     
     // Allocate
-    char* inputID = malloc(100 * sizeof(char));
-    char* inputPW = malloc(100 * sizeof(char));
+    char* inputID = (char*) malloc(100 * sizeof(char));
+    char* inputPW = (char*) malloc(100 * sizeof(char));
     
     printf("************************************************************\n");
     printf("Please enter your account to login\n");
@@ -329,9 +343,8 @@ void myLogin() {
             resultStrncmpPW = strncmp(inputPW, students[i].passWord,  maxLengthPW);
 
             // Both matched
-            if (resultStrncmpID == 0 && resultStrncmpPW == 0) {
+            if (resultStrncmpID == 0 && resultStrncmpPW == 0)
                 loginUserIndex = i;
-            }
         }
         
         if (loginUserIndex == -1) {
@@ -345,6 +358,9 @@ void myLogin() {
     printf("Welcome to Cornerstone International College of Canada.\n");
     printf("************************************************************\n");
 
+    free(inputID);
+    free(inputPW);
+    
     operator(loginUserIndex);
 }
 
@@ -389,16 +405,17 @@ void operator(int loginUserIndex) {
                 break;
                 
             case 8:
-                printf("Logout! Thank you.\n\n");
+                printf("\nLogout\n\nThank you.\n\n");
                 myLogin();
                 break;
                 
             case 9:
-                printf("Exit. Thank you.\n\n");
+                printf("\nExit.\n\nThank you.\n\n");
+                exit(0);
                 break;
                 
             default:
-                printf("Please enter the correct option.\n\n");
+                printf("\nPlease enter the correct option.\n\n");
                 break;
         }
     }
@@ -424,115 +441,112 @@ void printMenu() {
 
 
 void printEnrolment(int loginUserIndex) {
-    
-    readFile(FILE_STUDENTS);
-    readFile(FILE_COURSES);
 
     // Get "Mr" or "Ms"
     char *honorificTitle = getHonorificTitle(students[loginUserIndex].gender);
 
     // Count user's courses
     int coursesCount;
-    char* token = strtok(students[loginUserIndex].courses, ",");
+    char *strCourses = (char*) malloc(strlen(students[loginUserIndex].courses) + 1);
+    
+    // Copy courseID before splitting to keep the original data
+    strcpy(strCourses, students[loginUserIndex].courses);
+    
+    char *token = strtok(strCourses, ",");
+    
     while (token != NULL) {
         coursesCount++;
         token = strtok(NULL, ",");
     }
     
-    printf("\nDear Sir/Madam,\n\n");
+    printf("\nPrint myenrolment certificate\n\n");
+    printf("Dear Sir/Madam,\n\n");
     printf("Hi %s %s,\n", honorificTitle, students[loginUserIndex].name);
     printf("This is to certify that %s %s with student id %s is a student at grade %s at CICCC. ", honorificTitle, students[loginUserIndex].name, students[loginUserIndex].studentID, students[loginUserIndex].grade);
     printf("He/She was admitted to our college in %s and has taken %d course(s). ", students[loginUserIndex].admission_year, coursesCount);
     printf("Currently he/she resides at %s.\n\n", students[loginUserIndex].address);
-    printf("If you have any question, please don’t hesitate to contact us.");
-    printf("\n\nThanks,\nWilliams,\n");
+    printf("If you have any question, please don’t hesitate to contact us.\n\n");
+    printf("Thanks,\nWilliams,\n");
+    
+    free(strCourses);
 }
 
 
 void printCourses(int loginUserIndex) {
     // Prints all the courses the student has taken in the following format. And then printsthe above main menu again.
     
-    readFile(FILE_STUDENTS);
-    readFile(FILE_COURSES);
+    char *honorificTitle = getHonorificTitle(students[loginUserIndex].gender),
+    *strCourses = (char*) malloc(strlen(students[loginUserIndex].courses) + 1);
+    if (strCourses == NULL) {
+        return;
+    }
+    int no = 1,
+    coursesCount = 7; // TODO: Change to dynamic number
     
-    char *honorificTitle = getHonorificTitle(students[loginUserIndex].gender);
-    
+    printf("\nPrint my courses\n\n");
     printf("Hi %s %s,\n", honorificTitle, students[loginUserIndex].name);
     printf("You have taken the following courses:\n");
     
-    int no = 1,
-    cousesCount = 7; // TODO:あとで動的にする
+    // Copy courseID before splitting to keep the original data
+    strcpy(strCourses, students[loginUserIndex].courses);
+    
     char comma[] = ",",
-    *token = strtok(students[loginUserIndex].courses, comma);
+    *token = strtok(strCourses, comma);
     
     while(token != NULL) {
         
-        for (int i = 0; i < cousesCount; i++) {
+        for (int i = 0; i < coursesCount; i++) {
             if (strncmp(token, courses[i].courseID, strlen(token)) == 0) {
-                printf("%d)%s: %s\n", no, token, courses[i].name);
+                printf("%d) %s: %s\n", no, token, courses[i].name);
             }
         }
         
         token = strtok(NULL, comma);  // for after second time loop
         no++;
     }
+    
+    free(strCourses);
 }
 
 
 void printTranscript(int loginUserIndex) {
     
-    readFile(FILE_STUDENTS);
-    readFile(FILE_STUDENTSCOURSES);
-    readFile(FILE_COURSES);
-    
-    // Get "Mr" or "Ms"
-    char *honorificTitle = getHonorificTitle(students[loginUserIndex].gender);
-    
-    
-    int cousesCount = 1;
-    char *comma = ",";
-    char *strCouses = (char*) malloc(strlen(students[loginUserIndex].courses) + 1);
-    if (strCouses == NULL) {
+    int coursesCount = 1;
+    char *comma = ",",
+         *honorificTitle = getHonorificTitle(students[loginUserIndex].gender),       // Get "Mr" or "Ms"
+         *strCourses = (char*) malloc(strlen(students[loginUserIndex].courses) + 1), // Allocate
+         *strMarks   = (char*) malloc(strlen(students[loginUserIndex].mark)    + 1); // Allocate
+    if (strCourses == NULL)
         return;
-    }
-    char *strMarks = (char*) malloc(strlen(students[loginUserIndex].mark) + 1);
-    if (strMarks == NULL) {
+    if (strMarks == NULL)
         return;
+    
+    // Copy courseID before splitting to keep the original data
+    strcpy(strCourses, students[loginUserIndex].courses);
+    strcpy(strMarks,   students[loginUserIndex].mark);
+    
+    // Count the number of courseID to allocate
+    for(int m = 0; m < strlen(strCourses); m++) {
+        if(strCourses[m] == *comma)
+            coursesCount++;
     }
-    
-    // Copy couseID before split to keep the original data
-    strcpy(strCouses, students[loginUserIndex].courses);
-    strcpy(strMarks,  students[loginUserIndex].mark);
-    
-    // Count the number of couseID to allocate
-    for(int m = 0; m < strlen(strCouses); m++) {
-        if(strCouses[m] == *comma) {
-            cousesCount++;
-        }
-    }
-    
-    // Split copied couseID by comma
-    char *token = strtok(strCouses, comma);
-    
-    char **arrCourseIDs,
-    **arrCourseNames,
-    **arrMarks;
     
     // Allocate
-    arrCourseIDs = (char**) malloc(cousesCount * sizeof(char*));
-    arrCourseNames = (char**) malloc(cousesCount * sizeof(char*));
-    arrMarks = (char**) malloc(cousesCount * sizeof(char*));
-    if (arrCourseIDs == NULL) {
-        return;
-    }
-    if (arrCourseNames == NULL) {
-        return;
-    }
-    if (arrMarks == NULL) {
-        return;
-    }
+    char **arrCourseIDs   = (char**) malloc(coursesCount * sizeof(char*)),
+         **arrCourseNames = (char**) malloc(coursesCount * sizeof(char*)),
+         **arrMarks       = (char**) malloc(coursesCount * sizeof(char*));
     
-    // Define arrays of courseID and couseName
+    if (arrCourseIDs == NULL)
+        return;
+    if (arrCourseNames == NULL)
+        return;
+    if (arrMarks == NULL)
+        return;
+    
+    // Split copied courseID by comma
+    char *token = strtok(strCourses, comma);
+    
+    // Define arrays of courseID and courseName
     int i = 0;
     while(token != NULL) {
         
@@ -562,21 +576,18 @@ void printTranscript(int loginUserIndex) {
     }
     
     // Print
-    printf("\nHi %s %s,\n", honorificTitle, students[loginUserIndex].name);
+    printf("\nPrint my transcript\n\n");
+    printf("Hi %s %s,\n", honorificTitle, students[loginUserIndex].name);
     printf("Here is your transcript:\n");
     
-    for (int no = 0; no < cousesCount; no++) {
-        printf("%d)%s: %s: %s\n", no + 1, arrCourseIDs[no], arrCourseNames[no], arrMarks[no]);
+    for (int no = 0; no < coursesCount; no++) {
+        printf("%d) %s: %s: %s\n", no + 1, arrCourseIDs[no], arrCourseNames[no], arrMarks[no]);
     }
     
-    printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
+    printf("Your GPA is %.2f.\n", getGPA(loginUserIndex));
     
-//    printf("1)MADP101: Objective-C: 80\n");
-//    printf("2)MADP202: Project Management: 45\n");
-//    printf("3)MADP301: Java Programming: 64\n");
-//    printf("4)MADP401: Android Programming: 70\n");
-    
-    free(strCouses);
+    free(strCourses);
+    free(strMarks);
     free(arrCourseIDs);
     free(arrCourseNames);
     free(arrMarks);
@@ -585,23 +596,19 @@ void printTranscript(int loginUserIndex) {
 
 void printGPA(int loginUserIndex) {
     
-    readFile(FILE_STUDENTS);
-    readFile(FILE_STUDENTSCOURSES);
-    
-    printf("Hi Mr. %s\n",students[loginUserIndex].name);
-    printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
+    printf("\nPrint my GPA\n\n");
+    printf("Hi Mr. %s,\n",students[loginUserIndex].name);
+    printf("Your GPA is %.2f.\n", getGPA(loginUserIndex));
 }
 
 
 void printRanking(int loginUserIndex) {
     
-    readFile(FILE_STUDENTS);
-    readFile(FILE_STUDENTSCOURSES);
-    
-    int i, j;
-    int rank = 0;
-    double tmp;
-    double number[3] = {getGPA(0),getGPA(1),getGPA(2)};
+    int i,
+        j,
+        rank = 0;
+    double tmp,
+           number[3] = {getGPA(0),getGPA(1),getGPA(2)};
     
     for (i = 0; i < 3;++i) {
         for (j = i + 1;j < 3; ++j) {
@@ -613,48 +620,40 @@ void printRanking(int loginUserIndex) {
         }
     }
     
-    printf("Hi Mr. %s,\n", students[loginUserIndex].name);
-    printf("Your GPA is %.2f\n\n", getGPA(loginUserIndex));
-
-    printf("All Students GPA Ranking:\n\n");
     for (i = 2; i >= 0;--i){
-        printf("%.2f\n\n", number[i]);
-        if(number[i] == getGPA(loginUserIndex)){
+        if(number[i] == getGPA(loginUserIndex))
             rank = i + 1;
-        }
     }
-    printf("and therefore your rank is %d\n\n",rank);
+    
+    printf("\nPrint my ranking among all studentsin the college\n\n");
+    printf("Hi Mr. %s,\n", students[loginUserIndex].name);
+    printf("Your GPA is %.2f and therefore your rank is %d.\n", getGPA(loginUserIndex), rank);
 }
 
 
 void ListAllCourses() {
     
-    // If the user entered ‘6’, the program will printthe list of all available courses in the college in the following format and then printthemenu.
-    
-    printf("List all courses\n\n");
-    
-    readFile(FILE_COURSES);
+    // Print the list of all available courses in the college in the following format and then print the menu.
     
     int count = 7; // TODO: Change to a dynamic number later
     
-    for(int i = 0; i < count; i++){
-        printf("%d)%s: %s\n", i + 1, courses[i].courseID, courses[i].name);
+    printf("\nList all courses\n\n");
+    
+    for(int i = 0; i < count; i++) {
+        printf("%d) %s: %s\n", i + 1, courses[i].courseID, courses[i].name);
     }
-    printf("\n");
 }
 
 
 void ListAllStudents() {
     
-    // If the user enters ‘7’, the program will printthe list of all students in the college in the following format and then printthe menu.
-    
-    printf("List all students\n\n");
-    
-    readFile(FILE_STUDENTS);
+    // Print the list of all students in the college in the following format and then printthe menu.
     
     int count = 3; // TODO: Change to a dynamic number later
     
-    for(int i = 0; i < count; i++){
-        printf("%d)%s: %s\n", i + 1, students[i].name, students[i].studentID);
+    printf("\nList all students\n\n");
+    
+    for(int i = 0; i < count; i++) {
+        printf("%d) %s: %s\n", i + 1, students[i].name, students[i].studentID);
     }
 }
