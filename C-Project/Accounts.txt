@@ -1,8 +1,8 @@
-studentID:7813007
-password:password1
+User:”7813007”
+Pass:”password1”
 
-studentID:7813008
-password:password2
+User:”7813008”
+Pass:”password2”
 
-studentID:7813009
-password:password3
+User:”7813009”
+Pass:”password3”

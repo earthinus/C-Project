@@ -68,8 +68,8 @@ int main(int argc, const char * argv[]) {
 void readFile(char *filename) {
     
     char** result;
-    int indexGroup = 0, // number of groups
-        count = 1;
+    int n = 0, // number of groups
+        numStudent = 0;
     
     // Open file
     FILE* file = fopen(filename, "r");
@@ -80,44 +80,46 @@ void readFile(char *filename) {
         char readline[200];
         
         // Cout the number of groups of data
-        while (fgets(readline, 200, file) != NULL) {
-            //printf("%s\n", readline);
-            if (readline[0] == '\n') {
-                count++;
+        if (filename == FILE_STUDENTS) {
+            while (fgets(readline, 200, file) != NULL) {
+                
+                if (strncmp(readline, "studentID", strlen("studentID")) == 0) {
+                    numStudent++;
+                }
             }
         }
-        //printf("count = %d\n\n", count); // TODO: 後で消す
-        
-        // Allocate
-        result = (char**) malloc(2 * sizeof(char)); // 2 : to store key and value
         
         // Split keys and values on each line
         rewind(file);
-        while (fgets(readline, 200, file) != NULL) {
+                
+        // Store to structure
+        if (filename == FILE_STUDENTS || filename == FILE_STUDENTSCOURSES) {
             
-            if (readline[0] != '\n') {
+            while (fgets(readline, 200, file) != NULL)
+                readline[0] != '\n' ? setStudent(n, splitKeyValue(readline)) : n++;
                 
-                result = splitKeyValue(readline); // result : studentID, 7813007
+        } else if (filename == FILE_ACCOUNTS) {
+            
+            while (fgets(readline, 200, file) != NULL) {
                 
-                // Store to structure
-                if (filename == FILE_STUDENTS || filename == FILE_STUDENTSCOURSES || filename == FILE_STUDENTS || filename == FILE_ACCOUNTS) {
+                if (readline[0] != '\n') {
                     
-                    // to student
-                    setStudent(indexGroup, result); // group = order of group, result = key & value
+                    char *key = splitKeyValue(readline)[0];
                     
-                } else if (filename == FILE_COURSES) {
+                    if (strncmp(key, "Pass", strlen("Pass")) == 0)
+                        setStudent(n, splitKeyValue(readline));
                     
-                    // to course
-                    setCourse(indexGroup, result);
+                } else {
+                    n++;
                 }
-                
-            } else {
-                indexGroup++;
             }
+            
+        } else if (filename == FILE_COURSES) {
+            
+            while (fgets(readline, 200, file) != NULL)
+                readline[0] != '\n' ? setCourse(n, splitKeyValue(readline)) : n++;
         }
     }
-    
-    free(result);
     
     fclose(file);
 }
@@ -126,44 +128,47 @@ void readFile(char *filename) {
 char** splitKeyValue(char* readline) { // readline is "studentID:”7813007”\n"
     
     char colon = ':';
-    char doubleQuo = '\xe2';
+    
+    // Remove double quortations
+    int n = (int) strlen(readline);
+    char *str = (char*) malloc(n * sizeof(char));
+    for (int i = 0, j = 0; i < n; i++) {
+        if (readline[i] != '\xe2' && readline[i] != '\x80' && readline[i] != '\x9d' && readline[i] != '\x9c' && readline[i] != '"') {
+            str[j] = readline[i];
+            j++;
+        }
+    }
     
     // Get key's length
     int keyLength = 0;
-    while (readline[keyLength] != colon) {
+    while (str[keyLength] != colon) {
         keyLength++;
     }
     
     // Get value's length
     int valueLength = 0;
     int startIndex = keyLength;
-    bool hasDoubleQuo = false;
     
     // Count until the end of the line (which means until getting '\n' or '\0')
-    while (readline[startIndex] != '\n' && readline[startIndex] != '\0') {
+    while (str[startIndex] != '\n' && str[startIndex] != '\0') {
         valueLength++;
         startIndex++;
-        
-        // Check the double quotations
-        if (readline[valueLength] == doubleQuo) {
-            hasDoubleQuo = true;
-        }
     }
     
     // Replace from \n to \0
-    readline[startIndex] = '\0';
+    str[startIndex] = '\0';
     
     // Store key
     char* key   = (char*) malloc(keyLength * sizeof(char)); // Allocate key, value
     for (int i = 0; i < keyLength; i++) {
-        key[i] = readline[i];
+        key[i] = str[i];
     }
     
     // Store value
     startIndex = keyLength + sizeof(colon);
     char* value = (char*) malloc(valueLength * sizeof(char)); // Allocate value
     for (int j = 0; j < valueLength; j++) {
-        value[j] = readline[startIndex + j];
+        value[j] = str[startIndex + j];
     }
     
     // Store result
@@ -179,18 +184,20 @@ char** splitKeyValue(char* readline) { // readline is "studentID:”7813007”\n
 void setStudent(int studentIndex, char **result) {
     
     char *studentID = "studentID",
+         *user = "User",
          *name = "name",
-         *passWord = "password",
+         *pass = "Pass",
          *gender = "gender",
-         *mark = "mark",
          *grade = "grade",
          *address = "address",
          *admission_year = "admission_year",
          *courses = "courses",
-         *courseID = "courseID";
+         *courseID = "courseID",
+         *mark = "mark";
+    
     
     // studentID
-    if (strncmp(*result, studentID, strlen(studentID)) == 0) {
+    if (strncmp(*result, studentID, strlen(studentID)) == 0 || strncmp(*result, user, strlen(user)) == 0) {
         students[studentIndex].studentID = *(result + 1);
         
     // Name
@@ -198,7 +205,7 @@ void setStudent(int studentIndex, char **result) {
         students[studentIndex].name = *(result + 1);
         
     // Password
-    } else if(strncmp(*result, passWord, strlen(passWord)) == 0) {
+    } else if(strncmp(*result, pass, strlen(pass)) == 0) {
         students[studentIndex].passWord = *(result + 1);
         
     // Gender
@@ -305,10 +312,8 @@ void myLogin() {
         resultStrncmpPW;
     long maxLengthID,
          maxLengthPW;
-    
-    // Allocate
-    char* inputID = (char*) malloc(100 * sizeof(char));
-    char* inputPW = (char*) malloc(100 * sizeof(char));
+    char inputID[100],
+         inputPW[100];
     
     printf("************************************************************\n");
     printf("Please enter your account to login\n");
@@ -357,9 +362,6 @@ void myLogin() {
     printf("\n\n************************************************************\n");
     printf("Welcome to Cornerstone International College of Canada.\n");
     printf("************************************************************\n");
-
-    free(inputID);
-    free(inputPW);
     
     operator(loginUserIndex);
 }
