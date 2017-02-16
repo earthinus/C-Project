@@ -10,6 +10,8 @@
 #include <stdbool.h>
 #include <string.h>
 #include <assert.h>
+#include <time.h>
+#include <unistd.h>
 
 void readFile();
 char** splitKeyValue();
@@ -358,12 +360,14 @@ void myLogin() {
             printf("************************************************************\n\n");
         }
     }
-
+    
     printf("\n\n************************************************************\n");
     printf("Welcome to Cornerstone International College of Canada.\n");
     printf("************************************************************\n");
     
-    operator(loginUserIndex);
+    sleep(2);{
+        operator(loginUserIndex);
+    }
 }
 
 
